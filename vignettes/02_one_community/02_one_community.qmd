@@ -1,0 +1,114 @@
+---
+title: "One food web and its 27 stability metrics"
+author: "Simon Frost"
+engine: julia
+---
+
+## Overview
+
+The authors' simulation code is not public, so this package rebuilds it from SI §8–9 of
+Domínguez-García et al. (2019). The published dataset is used to settle what the text leaves
+open or gets wrong (see the project wiki: *Simulator reconstruction* and *Calibration*). This
+vignette follows one community through the whole procedure:
+
+1. draw a niche-model web;
+2. run the bioenergetic model to a steady state;
+3. compute the 27 metrics, from the Jacobian and from simulated presses and extinctions.
+
+```{julia}
+using EcologicalResilience
+using DataFrames, Statistics, Random, Printf
+using Plots
+```
+
+## A niche-model web
+
+The niche model of Williams & Martinez (2000) places species on a niche axis and lets each
+eat the species within a range below it. The connectance is 0.15, as in the paper.
+
+```{julia}
+rng = Xoshiro(42)
+web = niche_model(rng, 30, 0.15)
+L = trophic_levels(web)
+(species = richness(web), connectance = round(connectance(web); digits = 3), basal = count(isbasal(web)),
+ max_trophic_level = L === nothing ? missing : round(maximum(L); digits = 2))
+```
+
+## Assembly
+
+`assemble_community` draws a web and the community's allometric exponents, starts from random
+biomasses and integrates to a steady state. Species are removed when they fall below 10⁻⁶ of
+their body mass. The web is discarded if more than 10% of its species die, and plants left
+without consumers are then removed. Most draws are discarded. The `status` records why.
+
+```{julia}
+attempts = Symbol[]
+c = nothing
+while c === nothing
+    global c, status = assemble_community(rng, 30)
+    push!(attempts, status)
+end
+(attempts = attempts, initial = c.initial_richness, final = richness(c))
+```
+
+```{julia}
+B = biomass(c)
+alive = findall(c.model.alive)
+scatter(c.model.trophic_level[alive], B; yscale = :log10, group = ifelse.(c.model.basal[alive], "plant", "animal"),
+        xlabel = "trophic level", ylabel = "equilibrium biomass", size = (600, 380))
+```
+
+Without the metabolic loss that SI §8 lists for them, plants sit close to their carrying
+capacity of 1. Only this choice reproduces the dataset's total biomass per plant (0.98).
+
+## Responses to small pulses, from the Jacobian
+
+The Jacobian at equilibrium gives resilience (the slowest return rate) and reactivity (the
+fastest initial amplification). The amplification envelope A(t) = ‖exp(Jt)‖ is the largest
+displacement at time t of any unit pulse. The "median" versions average over pulses
+proportional to equilibrium biomass (Arnoldi et al. 2018).
+
+```{julia}
+J = jacobian(c.B, c.model)
+C = pulse_covariance(B)
+ts = 0:0.1:40
+plot(ts, [amplification_envelope(J, t) for t in ts]; label = "A(t), worst pulse", lw = 2, yscale = :log10,
+     xlabel = "time", ylabel = "displacement relative to the pulse", size = (600, 380))
+plot!(ts, [median_displacement(J, C, t) for t in ts]; label = "median pulse", lw = 2)
+```
+
+```{julia}
+Amax, tmax = max_amplification(J)
+(resilience = resilience(J), reactivity = reactivity(J), Amax = Amax, tmax = tmax,
+ median_reactivity = median_reactivity(J, C), stochastic_invariability = stochastic_invariability(J),
+ sensitivity = press_sensitivity(J))
+```
+
+The equilibrium is reactive: some pulses grow by a factor of `Amax` before they decay. A pulse
+spread over species in proportion to their biomass decays from the start.
+
+## Responses to presses and extinctions, by simulation
+
+Tolerance to mortality is the smallest increase in mortality that causes an extinction. It is
+measured for all species at once (global) and for each species alone (local). Raising every
+species' mortality by 10% and removing species one at a time give the resistance and
+sensitivity metrics.
+
+```{julia}
+factors = 1.0:0.25:4
+resp = [press_response(c, (m, _) -> set_mortality!(m, f)) for f in factors]
+plot(factors, [100 * r[1] for r in resp]; lw = 2, label = "loss of total biomass (%)",
+     xlabel = "mortality multiplier (all species)", size = (600, 380))
+plot!(factors, [r[3] for r in resp]; lw = 2, label = "extinctions", seriestype = :steppost)
+vline!([global_mortality_tolerance(c)]; label = "TM (first extinction)", ls = :dash)
+```
+
+`community_record` runs every experiment and returns the 39 raw columns of the authors'
+Dataset S1. `prepare_metrics` then turns them into the 27 metrics, each signed so that larger
+means more stable.
+
+```{julia}
+rec = community_record(rng, c)
+m = prepare_metrics(DataFrame([rec]))
+DataFrame(metric = METRICS, value = [m[1, k] for k in METRICS])
+```
