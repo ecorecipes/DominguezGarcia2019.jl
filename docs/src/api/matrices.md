@@ -18,6 +18,8 @@ Jacobian
 CommunityMatrix
 per_capita
 FluxMatrix
+jacobian(::AlphaMatrix)
+jacobian(::FluxMatrix)
 SignedDigraph
 ProbabilisticNetwork
 jacobian_metrics

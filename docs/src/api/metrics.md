@@ -20,14 +20,13 @@ total_sensitivity
 
 ## From simulated press perturbations
 
-```@docs
-PerturbationOptions
-global_mortality_tolerance
-local_mortality_tolerances
-press_response
-removal_responses
-extinction_tolerance
-```
+The experiments `PerturbationOptions`, `global_mortality_tolerance`,
+`local_mortality_tolerances`, `press_response`, `removal_responses` and
+`extinction_tolerance` are defined in
+[ResilienceCore.jl](https://ecorecipes.github.io/ResilienceCore.jl/dev/) and re-exported here.
+They run on any community that implements ResilienceCore's interface (`state`,
+`present_species`, `with_mortality`, `without_species`, `jacobian`), such as the assembled
+communities of FoodWebDynamics.jl.
 
 ## Datasets
 
