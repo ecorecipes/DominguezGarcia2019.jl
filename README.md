@@ -41,7 +41,7 @@ early-response group as an artefact of the published pulse weights.
 
 `data/dominguez-garcia2019/` holds the authors' Dataset S2 and one of their group files, from
 <https://github.com/domgarvir/Stability-metrics> (no licence stated there).
-`data/simulated/ensemble_v4.csv` is 3,000 communities simulated with
+`data/simulated/ensemble_v4.csv` is 10,000 communities simulated with
 `scripts/simulate_dataset.jl` (seed 20191217, initial richness 5–110), used by the third
 tutorial; each row can be regenerated from its `network` seed. Its raw columns follow the
 published convention of Dataset S1 (`community_record`); `*_si` columns hold the SI's

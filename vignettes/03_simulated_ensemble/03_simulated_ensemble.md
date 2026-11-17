@@ -27,7 +27,7 @@ pub_raw = CSV.read(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"), Dat
  median_seconds_per_community = median(sim_raw.seconds))
 ```
 
-    (simulated = 3000, published = 9380, median_seconds_per_community = 7.095)
+    (simulated = 10000, published = 9380, median_seconds_per_community = 6.38)
 
 Each simulated community was drawn with initial richness uniform on
 5–110 and its own random seed (`Sim<seed>`), so every row can be
@@ -66,8 +66,9 @@ reconstructed simulator.
 ## The analysis on simulated communities
 
 The published Dataset S2 has 100 communities at each richness. The
-simulated ensemble is smaller, so its correlations at a single richness
-are noisier, but class averages pool 11 sizes.
+10,000 simulated communities give about as many per richness (the median
+is printed below), so correlations at a single richness are about as
+noisy in both; class averages pool 11 sizes.
 
 ``` julia
 sim = prepare_metrics(sim_raw)
@@ -85,16 +86,16 @@ filter(r -> min(r.simulated, r.published) < 0.5, variation)
 | Row | metric | simulated | published |
 |----:|:-------|----------:|----------:|
 |     | String |   Float64 |   Float64 |
-|   1 | MAmax  |  0.193615 |  0.221855 |
-|   2 | Mtmax  |  0.193615 |  0.221855 |
+|   1 | MAmax  |  0.199507 |  0.221855 |
+|   2 | Mtmax  |  0.199507 |  0.221855 |
 
 </div>
 
 Only the median maximal amplification and its time take few distinct
 values: a median pulse either grows (MAmax \> 1) or the metrics are
 exactly `(1, 0)`. The published communities amplify in 22% of cases;
-ours do in 564 of 2913. With the SI’s aligned weights (`MAmax_si`)
-almost none do (1), so the two metrics would be constant. The comparison
+ours do in 1944 of 9744. With the SI’s aligned weights (`MAmax_si`)
+almost none do (3), so the two metrics would be constant. The comparison
 below uses every metric that varies in at least 1% of communities in
 both datasets.
 
@@ -105,7 +106,7 @@ sc_pub = size_correlations(pub; labels)
 (metrics = length(labels), sizes = length(sc_sim.sizes), median_per_size = median(sc_sim.n))
 ```
 
-    (metrics = 27, sizes = 95, median_per_size = 30.0)
+    (metrics = 27, sizes = 95, median_per_size = 100.0)
 
 ``` julia
 upper(R) = [R[i, j] for j in axes(R, 2) for i in axes(R, 1) if i < j]
@@ -142,19 +143,18 @@ for (name, (lo, hi)) in SIZE_CLASSES
 end
 ```
 
-    small  Q simulated 0.124, published 0.147; Rand index of the partitions 0.91
+    small  Q simulated 0.134, published 0.147; Rand index of the partitions 0.97
        R0 Is Amax tmax Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
-       MR0 maxRM SM <SM> maxSM maxRE <SE> maxSE
+       MR0 RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
        MAmax Mtmax
-       RM <RM> <RE>
-    large  Q simulated 0.158, published 0.207; Rand index of the partitions 1.00
+    large  Q simulated 0.187, published 0.207; Rand index of the partitions 1.00
        R0 Amax tmax MR0 MAmax Mtmax
        Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
-    medium Q simulated 0.185, published 0.177; Rand index of the partitions 0.82
+    medium Q simulated 0.175, published 0.177; Rand index of the partitions 0.88
        R0 Amax tmax MR0 MAmax Mtmax
-       Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE
-       maxCE RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
+       Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
+       RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
 
 The Rand index is the share of pairs of metrics on which the two
 partitions agree (together in both, or apart in both).
@@ -172,13 +172,13 @@ sort(outerjoin(t_pub, t_sim; on = :type), :type)
 | Row | type   | published | simulated |
 |----:|:-------|----------:|----------:|
 |     | String |    Int64? |    Int64? |
-|   1 | A      |         7 |         5 |
-|   2 | B      |         8 |        26 |
-|   3 | C      |         7 |        29 |
+|   1 | A      |         7 |         4 |
+|   2 | B      |         8 |        14 |
+|   3 | C      |         7 |         4 |
 |   4 | D      |         5 |         2 |
-|   5 | E      |        64 |        59 |
-|   6 | F      |       105 |        85 |
-|   7 | G      |       155 |       145 |
+|   5 | E      |        64 |        55 |
+|   6 | F      |       105 |       101 |
+|   7 | G      |       155 |       171 |
 
 </div>
 

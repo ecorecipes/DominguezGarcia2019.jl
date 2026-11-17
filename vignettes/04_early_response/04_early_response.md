@@ -29,6 +29,7 @@ published data alone and then from simulations computed both ways.
 
 ``` julia
 using EcologicalResilience
+using FoodWebDynamics
 using CSV, DataFrames, Statistics, Random, Printf
 using Plots
 data = joinpath(pkgdir(EcologicalResilience), "data")
@@ -38,7 +39,7 @@ sim = sim[5 .<= sim.N .<= 99, :]
 (published = nrow(pub), simulated = nrow(sim))
 ```
 
-    (published = 9380, simulated = 2913)
+    (published = 9380, simulated = 9744)
 
 ## Median metrics and their pulse weights
 
@@ -70,7 +71,7 @@ J = jacobian(c.B, c.model)
 N = richness(c)
 weights = DataFrame(species = findall(c.model.alive), own_biomass = biomass(c),
                     published_weight = c.B[1:N])
-first(weights, 8)
+filter(r -> r.own_biomass != r.published_weight, weights)   # survivors whose weight is wrong
 ```
 
     ┌ Warning: Verbosity toggle: max_iters 
@@ -80,19 +81,22 @@ first(weights, 8)
     │  Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
     └ @ DiffEqBase ~/.julia/packages/DiffEqBase/WgyOh/src/check_error.jl:44
 
-<div><div style = "float: left;"><span>8×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;">
+<div><div style = "float: left;"><span>11×3 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;">
 
 | Row | species | own_biomass | published_weight |
 |----:|--------:|------------:|-----------------:|
 |     |   Int64 |     Float64 |          Float64 |
-|   1 |       1 |    0.976171 |         0.976171 |
-|   2 |       2 |    0.820258 |         0.820258 |
-|   3 |       3 |    0.796379 |         0.796379 |
-|   4 |       4 |    0.796379 |         0.796379 |
-|   5 |       5 |    0.698591 |         0.698591 |
-|   6 |       6 |   0.0474237 |        0.0474237 |
-|   7 |       7 |   0.0592663 |        0.0592663 |
-|   8 |       8 |   0.0653747 |        0.0653747 |
+|   1 |      18 |     0.58296 |              0.0 |
+|   2 |      19 |  0.00468883 |          0.58296 |
+|   3 |      20 |  0.00192724 |       0.00468883 |
+|   4 |      21 |    0.583215 |       0.00192724 |
+|   5 |      22 |  0.00282098 |         0.583215 |
+|   6 |      23 |  0.00527902 |       0.00282098 |
+|   7 |      24 |  0.00282447 |       0.00527902 |
+|   8 |      25 |   0.0105302 |       0.00282447 |
+|   9 |      26 | 0.000426869 |        0.0105302 |
+|  10 |      27 |  0.00205099 |      0.000426869 |
+|  11 |      30 |     1.60977 |       0.00205099 |
 
 </div>
 
@@ -159,8 +163,8 @@ plot(classes, [share(pub), share(sim), share(si)]; marker = :circle, lw = 2,
 ![](04_early_response_files/figure-commonmark/cell-6-output-1.svg)
 
 With the published weighting, our simulations reproduce the switch. With
-the SI’s weighting, 1 of 2913 communities amplify a median pulse, so
-MAmax and Mtmax are effectively constant.
+the SI’s weighting, the number of communities amplifying a median pulse
+falls to 3 out of 9744, so MAmax and Mtmax are effectively constant.
 
 ## What this does to the stability dimensions
 

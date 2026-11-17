@@ -53,9 +53,9 @@ panels are independent checks of the reconstructed simulator.
 
 ## The analysis on simulated communities
 
-The published Dataset S2 has 100 communities at each richness. The simulated ensemble is
-smaller, so its correlations at a single richness are noisier, but class averages pool 11
-sizes.
+The published Dataset S2 has 100 communities at each richness. The 10,000 simulated
+communities give about as many per richness (the median is printed below), so correlations at
+a single richness are about as noisy in both; class averages pool 11 sizes.
 
 ```{julia}
 sim = prepare_metrics(sim_raw)

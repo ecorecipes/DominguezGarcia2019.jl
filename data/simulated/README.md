@@ -1,9 +1,9 @@
 # Simulated ensemble
 
-`ensemble_v4.csv` holds 3,000 niche-model communities simulated with this package:
+`ensemble_v4.csv` holds 10,000 niche-model communities simulated with this package:
 
 ```bash
-julia -t 10 --gcthreads=1 --project scripts/simulate_dataset.jl data/simulated/ensemble_v4.csv 3000
+julia -t 10 --gcthreads=1 --project scripts/simulate_dataset.jl data/simulated/ensemble_v4.csv 10000
 ```
 
 The defaults are seed 20191217 and initial richness uniform on 5–110. Community `Sim<seed + k>`
