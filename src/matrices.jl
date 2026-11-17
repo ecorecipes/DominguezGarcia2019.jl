@@ -148,12 +148,7 @@ struct Jacobian <: InteractionMatrix
 end
 matrix(j::Jacobian) = j.J
 
-function Jacobian(c::Community)
-    idx = findall(c.model.alive)
-    meta = MatrixMetadata(; taxa = ["sp$i" for i in idx], state_variables = "biomass density",
-                          units = "per unit time", derivation = "analytic Jacobian of the bioenergetic model at a polished equilibrium")
-    return Jacobian(jacobian(c.B, c.model), biomass(c); meta = meta)
-end
+# Jacobian(c::Community) for a FoodWebDynamics community: in EcologicalResilienceFoodWebDynamicsExt.
 
 """
     jacobian(a::AlphaMatrix; N = equilibrium(a))

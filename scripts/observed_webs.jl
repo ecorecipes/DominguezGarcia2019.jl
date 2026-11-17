@@ -23,6 +23,7 @@
 # counts neutral top consumers merged (see `merge_neutral!`). Rows are
 # appended as they finish, so an interrupted run resumes.
 using EcologicalResilience
+using FoodWebDynamics
 using CSV, DataFrames
 using LinearAlgebra: BLAS
 using Random: Xoshiro

@@ -30,20 +30,23 @@ const PUBLISHER_LABELS = ["\$R_{0}\$", "\$Is\$", "\$A_{max}\$", "\$t_{max}\$", "
                           "\$<RM^L>\$", "\$RM^L_{max}\$", "\$SM^G\$", "\$<SM^L>\$", "\$SM^L_{max}\$",
                           "\$<RE>\$", "\$RE_{max}\$", "\$<SE>\$", "\$SE_{max}\$"]
 
+# The functions below take an assembled community of FoodWebDynamics.jl; their methods are in
+# the package extension EcologicalResilienceFoodWebDynamicsExt (loaded with `using FoodWebDynamics`).
+
 """
     published_pulse_covariance(c::Community)
 
 The pulse covariance behind the published median metrics (`MR0`, `MRinf`, `MAmax`, `Mtmax`) of
 Dataset S1: `Diagonal(w.^2)` with `w = c.B[1:N]`. That is the first `N` entries of the biomass
-vector over all initial species (extinct ones at zero, in niche order; see
-[`niche_model`](@ref)), set against the `N` surviving species. The weights agree with
+vector over all initial species (extinct ones at zero, in niche order; see FoodWebDynamics'
+`niche_model`), set against the `N` surviving species. The weights agree with
 [`pulse_covariance`](@ref)`(biomass(c))` only when no species went extinct during assembly.
 The misalignment reproduces the published data: in communities that kept every species the
 published median metrics match the aligned weights, with `MR0 ≈ −0.76` and no amplification.
 After extinctions, `MR0` drifts towards 0 and about a fifth of communities amplify, as in the
-published data; aligned weights give neither.
+published data; aligned weights give neither. Requires `using FoodWebDynamics`.
 """
-published_pulse_covariance(c::Community) = Diagonal(c.B[1:richness(c)] .^ 2)
+function published_pulse_covariance end
 
 """
     amplification_metrics(c::Community; convention = :published, dt = 0.1)
@@ -56,20 +59,10 @@ The six raw columns of [`community_record`](@ref) that depend on the convention,
   [`published_pulse_covariance`](@ref).
 - `:si` follows the definitions of the SI: the spectral norm, and pulses proportional to the
   surviving species' own biomasses ([`pulse_covariance`](@ref)).
+
+Requires `using FoodWebDynamics`.
 """
-function amplification_metrics(c::Community; convention::Symbol = :published, dt::Real = 0.1)
-    return amplification_metrics(c, jacobian(c.B, c.model), convention, dt)
-end
-function amplification_metrics(c::Community, J::AbstractMatrix, convention::Symbol, dt::Real)
-    convention in (:published, :si) ||
-        throw(ArgumentError("convention must be :published or :si, got :$convention"))
-    published = convention === :published
-    Amax, tmax = max_amplification(J; dt = dt, p = published ? Inf : 2)
-    C = published ? published_pulse_covariance(c) : pulse_covariance(biomass(c))
-    MAmax, Mtmax = median_max_amplification(J, C; dt = dt)
-    return (Amax = Amax, tmax = tmax, MRinf = median_resilience(J, C; dt = dt), MR0 = median_reactivity(J, C),
-            MAmax = MAmax, Mtmax = Mtmax)
-end
+function amplification_metrics end
 
 """
     community_record([rng], c::Community; options = PerturbationOptions(), dt = 0.1,
@@ -87,41 +80,12 @@ the local responses (Spearman ρ ≈ 0.92), as this definition does, but its val
 times larger. No stronger press tried (mortality ×2–×11, plant carrying capacity, all loss
 terms) reproduces both the size and the ranking. The scale does not affect the paper's
 rank-based analyses.
+
+The simulation experiments are those of ResilienceCore (`global_mortality_tolerance`,
+`press_response`, `removal_responses`, `extinction_tolerance`, …), run through FoodWebDynamics'
+implementation of the community interface. Requires `using FoodWebDynamics`.
 """
-function community_record(rng::AbstractRNG, c::Community; options::PerturbationOptions = PerturbationOptions(),
-                          dt::Real = 0.1, convention::Symbol = :published)
-    model = c.model
-    B = biomass(c)
-    N = length(B)
-    J = jacobian(c.B, model)
-    amp = amplification_metrics(c, J, convention, dt)
-    loc = local_mortality_tolerances(c; options = options)
-    rel, l1, _ = press_response(c, (m, _) -> set_mortality!(m, 1 + options.press); options = options)
-    locpress = [press_response(c, (m, _) -> (m.mortality[i] = 1 + options.press); options = options)
-                for i in findall(model.alive)]
-    lrel = first.(locpress)
-    ll1 = [x[2] for x in locpress]
-    rem = removal_responses(c; options = options)
-    surv = [r.survivors / (N - 1) for r in rem]
-    rrel = [r.relative for r in rem]
-    idx = findall(model.alive)
-    eaten = [any(k -> model.alive[k] && i in model.resources[k], idx) for i in idx]
-    p = B ./ sum(B)
-    ex = model.exponents
-    return (Rinf = resilience(J), R0 = reactivity(J), Is = stochastic_invariability(J), Amax = amp.Amax,
-            tmax = amp.tmax, MRinf = amp.MRinf, MR0 = amp.MR0, MAmax = amp.MAmax, Mtmax = amp.Mtmax,
-            L1DBRMt_s = press_sensitivity(J), absumS = total_sensitivity(J),
-            TM_p = global_mortality_tolerance(c; options = options), minTM_i = minimum(loc),
-            av_TM_i = sum(loc) / N, Ext_half = extinction_tolerance(rng, c; options = options), RM_p = rel,
-            L1DBRM_p = l1, maxRM_i = lrel[argmax(abs.(lrel))], avRM_i = sum(lrel) / N, avL1DBRM_i = sum(ll1) / N,
-            maxSensM_i = maximum(ll1), Robst = sum(surv) / N, DBRobst = sum(rrel) / N,
-            L1DBRobst = sum(r.l1 for r in rem) / N, minRobst = minimum(surv), maxDBRost = maximum(rrel),
-            minDBRobst = minimum(rrel), maxL1DBRobst = maximum(r.l1 for r in rem), N = N,
-            iniN = c.initial_richness, Nb = count(model.basal[idx]), Napex = count(.!eaten),
-            Ncan = count(i -> i in model.resources[i], idx), Btot = sum(B), B_IPR = sum(abs2, p),
-            a_i = ex.alpha_consumer, a_j = ex.alpha_resource, h_i = ex.eta_consumer, h_j = ex.eta_resource)
-end
-community_record(c::Community; kwargs...) = community_record(Random.default_rng(), c; kwargs...)
+function community_record end
 
 """
     prepare_metrics(raw::DataFrame)

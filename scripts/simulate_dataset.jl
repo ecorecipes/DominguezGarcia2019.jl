@@ -1,7 +1,10 @@
 # Simulate a dataset of stability metrics in the layout of the raw Dataset S1 of
 # Domínguez-García et al. (2019): one row per assembled community, all raw columns.
 #
-#   julia -t auto --gcthreads=1 --project scripts/simulate_dataset.jl OUT.csv NCOMMUNITIES [MINS MAXS SEED]
+#   julia -t auto --gcthreads=1 --project scripts/simulate_dataset.jl OUT.csv NCOMMUNITIES [MINS MAXS SEED [KEY=VALUE ...]]
+#
+# KEY=VALUE pairs after the positional arguments override fields of BioenergeticParameters,
+# e.g. `q=0.6 h0=0.2 plant_metabolism=true`, for sensitivity analyses.
 #
 # --gcthreads=1: Julia 1.12's parallel GC segfaulted (gc_sweep_pool_parallel) after about 800
 # communities; a run with --check-bounds=yes found no out-of-bounds access in this package.
@@ -13,6 +16,7 @@
 # `MRinf_si`, `MR0_si`, `MAmax_si` and `Mtmax_si` give the same six metrics as the SI defines them
 # (`amplification_metrics(c; convention = :si)`).
 using EcologicalResilience
+using FoodWebDynamics
 using CSV, DataFrames
 using LinearAlgebra: BLAS
 using Random: Xoshiro
@@ -24,6 +28,13 @@ n = parse(Int, ARGS[2])
 mins = length(ARGS) ≥ 3 ? parse(Int, ARGS[3]) : 5
 maxs = length(ARGS) ≥ 4 ? parse(Int, ARGS[4]) : 110
 seed = length(ARGS) ≥ 5 ? parse(Int, ARGS[5]) : 20191217
+overrides = map(ARGS[6:end]) do a
+    k, v = Symbol.(split(a, "="; limit = 2))
+    T = fieldtype(BioenergeticParameters, k)
+    k => parse(T, String(v))
+end
+params = BioenergeticParameters(; overrides...)
+isempty(overrides) || println("model settings: ", join(("$k = $v" for (k, v) in overrides), ", "))
 
 done = isfile(out) ? Set(CSV.read(out, DataFrame; select = [:network]).network) : Set{String}()
 todo = [k for k in 1:n if "Sim$(seed + k)" ∉ done]
@@ -37,7 +48,7 @@ Threads.@threads :dynamic for k in todo
     attempts = Dict{Symbol,Int}()
     c = nothing
     while c === nothing
-        c, status = assemble_community(rng, S)
+        c, status = assemble_community(rng, S; params = params)
         attempts[status] = get(attempts, status, 0) + 1
     end
     rec = nothing

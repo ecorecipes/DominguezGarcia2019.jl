@@ -59,14 +59,7 @@ read_kinlock
 alpha_from_rii
 read_adler
 read_stein
-ObservedWeb
-read_gateway
-trophic_species
-relative_masses
 ```
 
-## Symbolic models
-
-```@docs
-reaction_network
-```
+Observed food webs (`read_gateway`, `trophic_species`), the food-web model and its Catalyst
+form (`reaction_network`) are in FoodWebDynamics.jl.

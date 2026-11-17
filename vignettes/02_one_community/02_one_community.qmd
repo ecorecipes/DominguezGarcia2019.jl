@@ -17,6 +17,7 @@ vignette follows one community through the whole procedure:
 
 ```{julia}
 using EcologicalResilience
+using FoodWebDynamics
 using DataFrames, Statistics, Random, Printf
 using Plots
 ```
