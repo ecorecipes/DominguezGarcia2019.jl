@@ -40,6 +40,7 @@ glv_trajectory
 feasibility_domain
 structural_vector
 feasibility_angle
+SignPattern(::SignedDigraph)
 quasi_sign_stability
 press_sign_determinacy
 ```

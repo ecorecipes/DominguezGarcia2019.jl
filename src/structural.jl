@@ -53,22 +53,25 @@ function feasibility_angle(a::AlphaMatrix)
     return rad2deg(acos(c))
 end
 
-function random_from_signs(rng::AbstractRNG, S::AbstractMatrix)
-    return S .* rand(rng, size(S)...)
-end
+"""
+    SignPattern(s::SignedDigraph)
+
+The sign pattern of `s` as a `ResilienceCore.SignPattern`, labelled with its taxa when they
+are recorded. The qualitative analyses, [`quasi_sign_stability`](@ref) and
+[`press_sign_determinacy`](@ref), are ResilienceCore's, applied to it.
+"""
+SignPattern(s::SignedDigraph) = SignPattern(s.S; labels = isempty(s.meta.taxa) ? nothing : s.meta.taxa)
 
 """
     quasi_sign_stability([rng], s::SignedDigraph; samples = 10_000)
 
 The fraction of matrices with sign pattern `s` and magnitudes uniform on (0, 1) that are stable
 (every eigenvalue with negative real part): quasi-sign-stability (Allesina & Pascual 2008).
-A diagonal of zeros means no self-regulation. Returns `(fraction, se)`.
+A diagonal of zeros means no self-regulation. Returns `(fraction, se)`. ResilienceCore's
+method on `SignPattern(s)`.
 """
-function quasi_sign_stability(rng::AbstractRNG, s::SignedDigraph; samples::Integer = 10_000)
-    stable = count(_ -> maximum(real, eigvals(random_from_signs(rng, s.S))) < 0, 1:samples)
-    p = stable / samples
-    return (fraction = p, se = sqrt(p * (1 - p) / samples))
-end
+quasi_sign_stability(rng::AbstractRNG, s::SignedDigraph; samples::Integer = 10_000) =
+    quasi_sign_stability(rng, SignPattern(s); samples)
 quasi_sign_stability(s::SignedDigraph; kwargs...) = quasi_sign_stability(Random.default_rng(), s; kwargs...)
 
 """
@@ -77,27 +80,12 @@ quasi_sign_stability(s::SignedDigraph; kwargs...) = quasi_sign_stability(Random.
 Qualitative press-perturbation analysis (Dambacher et al. 2003; the simulation approach of
 QPress): draw matrices with sign pattern `s` and magnitudes uniform on (0, 1), keep the stable
 ones, and for each compute the equilibrium response to a sustained increase in each species'
-growth, `−J⁻¹`. Returns `(sign, determinacy, stable)`: the most common sign of each response
-(row: responding species, column: pressed species; 0 when the response is structurally zero,
-below 1e-10 of the largest), the fraction of stable draws with that outcome, and the fraction
-of draws that were stable.
+growth, `−J⁻¹`. Returns `(sign, determinacy, stable, labels)`: the most common sign of each
+response (an n×n matrix; row: responding species, column: pressed species; 0 when the response
+is structurally zero, below 1e-10 of the largest), the fraction of stable draws with that
+outcome, the fraction of draws that were stable, and the taxa (or `nothing`).
+ResilienceCore's method on `SignPattern(s)`.
 """
-function press_sign_determinacy(rng::AbstractRNG, s::SignedDigraph; samples::Integer = 10_000)
-    n = nspecies(s)
-    pos, neg, kept = zeros(Int, n, n), zeros(Int, n, n), 0
-    for _ in 1:samples
-        J = random_from_signs(rng, s.S)
-        maximum(real, eigvals(J)) < 0 || continue
-        R = -inv(J)
-        tol = 1e-10 * maximum(abs, R)
-        pos .+= R .> tol
-        neg .+= R .< -tol
-        kept += 1
-    end
-    kept == 0 && return (sign = zeros(Int8, n, n), determinacy = fill(NaN, n, n), stable = 0.0)
-    zero_ = kept .- pos .- neg
-    sgn = [zero_[i] ≥ max(pos[i], neg[i]) ? Int8(0) : Int8(sign(pos[i] - neg[i])) for i in eachindex(pos)]
-    det = max.(pos, neg, zero_) ./ kept
-    return (sign = sgn, determinacy = det, stable = kept / samples)
-end
+press_sign_determinacy(rng::AbstractRNG, s::SignedDigraph; samples::Integer = 10_000) =
+    press_sign_determinacy(rng, SignPattern(s); samples)
 press_sign_determinacy(s::SignedDigraph; kwargs...) = press_sign_determinacy(Random.default_rng(), s; kwargs...)

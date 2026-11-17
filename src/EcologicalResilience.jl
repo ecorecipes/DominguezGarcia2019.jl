@@ -22,7 +22,7 @@ using Random: Random, AbstractRNG
 using SciMLBase: SciMLBase, ODEFunction, ODEProblem, DiscreteCallback
 using ResilienceCore: ResilienceCore, PerturbationOptions, global_mortality_tolerance, local_mortality_tolerances,
                       press_response, removal_responses, extinction_tolerance
-import ResilienceCore: jacobian
+import ResilienceCore: jacobian, SignPattern, quasi_sign_stability, press_sign_determinacy
 
 export reactivity, resilience, amplification_envelope, max_amplification, pulse_covariance, median_reactivity,
        median_displacement, median_max_amplification, median_resilience, stochastic_invariability,
@@ -34,7 +34,8 @@ export RAW_COLUMNS, METRICS, community_record, published_pulse_covariance, ampli
 export MatrixMetadata, InteractionMatrix, matrix, matrix_metadata, taxa, nspecies, AlphaMatrix, glv_rhs!, equilibrium,
        isfeasible, Jacobian, CommunityMatrix, per_capita, FluxMatrix, SignedDigraph, ProbabilisticNetwork,
        jacobian_metrics, subcommunity, invasion_rates, steady_state, glv_trajectory
-export feasibility_domain, structural_vector, feasibility_angle, quasi_sign_stability, press_sign_determinacy
+export feasibility_domain, structural_vector, feasibility_angle, quasi_sign_stability, press_sign_determinacy,
+       SignPattern
 export smap_jacobians, invariability
 export read_kinlock, alpha_from_rii, read_adler, read_stein
 export SizeCorrelations, size_correlations, class_average, SIZE_CLASSES, metric_network, modularity,
