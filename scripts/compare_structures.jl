@@ -19,7 +19,7 @@
 # (`community_record`). If it also has the SI versions (`*_si`, from simulate_dataset.jl), a
 # fourth dataset `niche_si` uses them, and it is the one compared with observed webs, which are
 # run with the SI convention.
-using EcologicalResilience
+using DominguezGarcia2019
 using CSV, DataFrames, Statistics, Printf
 using Random: Xoshiro, shuffle
 

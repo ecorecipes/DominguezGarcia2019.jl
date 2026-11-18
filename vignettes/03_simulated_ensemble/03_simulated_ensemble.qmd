@@ -12,10 +12,10 @@ metric and then through the paper's analysis: correlations by size class, modula
 how correlations change with community size.
 
 ```{julia}
-using EcologicalResilience
+using DominguezGarcia2019
 using CSV, DataFrames, Statistics, Random, Printf
 using Plots
-data = joinpath(pkgdir(EcologicalResilience), "data")
+data = joinpath(pkgdir(DominguezGarcia2019), "data")
 sim_raw = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 pub_raw = CSV.read(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"), DataFrame)
 (simulated = nrow(sim_raw), published = nrow(pub_raw),
@@ -79,8 +79,8 @@ both datasets.
 
 ```{julia}
 labels = filter(r -> min(r.simulated, r.published) >= 0.01, variation).metric
-sc_sim = size_correlations(sim; labels)
-sc_pub = size_correlations(pub; labels)
+sc_sim = size_correlations(sim; labels, rng = Xoshiro(2019))   # up to 100 communities per richness
+sc_pub = size_correlations(pub; labels, rng = Xoshiro(2019))
 (metrics = length(labels), sizes = length(sc_sim.sizes), median_per_size = median(sc_sim.n))
 ```
 

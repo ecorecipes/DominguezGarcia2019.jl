@@ -23,7 +23,8 @@ follows one community through the whole procedure:
     and extinctions.
 
 ``` julia
-using EcologicalResilience
+using DominguezGarcia2019
+using FoodWebDynamics
 using DataFrames, Statistics, Random, Printf
 using Plots
 ```
@@ -87,21 +88,21 @@ unit pulse. The “median” versions average over pulses proportional to
 equilibrium biomass (Arnoldi et al. 2018).
 
 ``` julia
-J = jacobian(c.B, c.model)
+op = community_jacobian(c)
 C = pulse_covariance(B)
 ts = 0:0.1:40
-plot(ts, [amplification_envelope(J, t) for t in ts]; label = "A(t), worst pulse", lw = 2, yscale = :log10,
+plot(ts, [amplification_envelope(op, t) for t in ts]; label = "A(t), worst pulse", lw = 2, yscale = :log10,
      xlabel = "time", ylabel = "displacement relative to the pulse", size = (600, 380))
-plot!(ts, [median_displacement(J, C, t) for t in ts]; label = "median pulse", lw = 2)
+plot!(ts, [median_displacement(op, C, t) for t in ts]; label = "median pulse", lw = 2)
 ```
 
 ![](02_one_community_files/figure-commonmark/cell-6-output-1.svg)
 
 ``` julia
-Amax, tmax = max_amplification(J)
-(resilience = resilience(J), reactivity = reactivity(J), Amax = Amax, tmax = tmax,
- median_reactivity = median_reactivity(J, C), stochastic_invariability = stochastic_invariability(J),
- sensitivity = press_sensitivity(J))
+Amax, tmax = max_amplification(op)
+(resilience = resilience(op), reactivity = reactivity(op), Amax = Amax, tmax = tmax,
+ median_reactivity = median_reactivity(op, C), stochastic_invariability = stochastic_invariability(op),
+ sensitivity = press_sensitivity(op))
 ```
 
     (resilience = 0.027373151276825505, reactivity = 0.4707792320817974, Amax = 2.5862447957697587, tmax = 9.3, median_reactivity = -0.6753929845020011, stochastic_invariability = 0.004499060622894939, sensitivity = 340.9024950559039)
@@ -120,7 +121,7 @@ metrics.
 
 ``` julia
 factors = 1.0:0.25:4
-resp = [press_response(c, (m, _) -> set_mortality!(m, f)) for f in factors]
+resp = [press_response(c, fill(f, length(state(c)))) for f in factors]   # every species' mortality × f
 plot(factors, [100 * r[1] for r in resp]; lw = 2, label = "loss of total biomass (%)",
      xlabel = "mortality multiplier (all species)", size = (600, 380))
 plot!(factors, [r[3] for r in resp]; lw = 2, label = "extinctions", seriestype = :steppost)

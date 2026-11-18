@@ -22,7 +22,7 @@
 # equilibrium, or keep fewer than 3 species, are recorded with `status` and no metrics. `merged`
 # counts neutral top consumers merged (see `merge_neutral!`). Rows are
 # appended as they finish, so an interrupted run resumes.
-using EcologicalResilience
+using DominguezGarcia2019
 using FoodWebDynamics
 using CSV, DataFrames
 using LinearAlgebra: BLAS

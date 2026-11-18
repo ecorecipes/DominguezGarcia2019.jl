@@ -15,7 +15,7 @@
 # The raw columns follow the published convention (`community_record`); `Amax_si`, `tmax_si`,
 # `MRinf_si`, `MR0_si`, `MAmax_si` and `Mtmax_si` give the same six metrics as the SI defines them
 # (`amplification_metrics(c; convention = :si)`).
-using EcologicalResilience
+using DominguezGarcia2019
 using FoodWebDynamics
 using CSV, DataFrames
 using LinearAlgebra: BLAS

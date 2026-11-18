@@ -5,8 +5,9 @@
         c, status = assemble_community(rng, 12)
     end
     @test status == :ok
-    J = jacobian(c.B, c.model)
-    @test maximum(real, eigvals(J)) < 0
+    op = community_jacobian(c)
+    @test op.J == jacobian(c.B, c.model) && op.equilibrium == biomass(c)
+    @test maximum(real, eigvals(op.J)) < 0
     @test all(biomass(c) .> c.model.threshold[c.model.alive])
     @test isempty(isolated_plants(c.model))
     @test richness(c) ≥ floor(Int, 0.9 * c.initial_richness)   # Dataset S1: N ≥ floor(0.9 iniN)
@@ -23,8 +24,8 @@
     @test keys(r) == Tuple(RAW_COLUMNS)
     pub, si = amplification_metrics(c), amplification_metrics(c; convention = :si)
     @test all(getfield(r, k) == getfield(pub, k) for k in keys(pub))
-    @test si.Amax ≈ max_amplification(J)[1] && pub.Amax ≈ max_amplification(J; p = Inf)[1]
-    @test si.MR0 ≈ median_reactivity(J, pulse_covariance(biomass(c)))
+    @test si.Amax ≈ max_amplification(op)[1] && pub.Amax ≈ published_max_amplification(op)[1]
+    @test si.MR0 ≈ median_reactivity(op)
     @test_throws ArgumentError amplification_metrics(c; convention = :other)
     # published weights: the first N entries of the full biomass vector; aligned when nothing died
     N = richness(c)

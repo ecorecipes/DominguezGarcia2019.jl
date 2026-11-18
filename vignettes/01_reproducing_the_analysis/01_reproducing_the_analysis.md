@@ -23,11 +23,11 @@ output of their Python code. The next vignettes regenerate the data
 themselves.
 
 ``` julia
-using EcologicalResilience
+using DominguezGarcia2019
 using DataFrames, Statistics, Random, Printf
 using LinearAlgebra: I
 using Plots
-data = joinpath(pkgdir(EcologicalResilience), "data", "dominguez-garcia2019")
+data = joinpath(pkgdir(DominguezGarcia2019), "data", "dominguez-garcia2019")
 df = read_metrics(joinpath(data, "Dataset_S2.csv"))
 size(df)
 ```

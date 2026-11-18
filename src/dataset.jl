@@ -31,7 +31,7 @@ const PUBLISHER_LABELS = ["\$R_{0}\$", "\$Is\$", "\$A_{max}\$", "\$t_{max}\$", "
                           "\$<RE>\$", "\$RE_{max}\$", "\$<SE>\$", "\$SE_{max}\$"]
 
 # The functions below take an assembled community of FoodWebDynamics.jl; their methods are in
-# the package extension EcologicalResilienceFoodWebDynamicsExt (loaded with `using FoodWebDynamics`).
+# community.jl.
 
 """
     published_pulse_covariance(c::Community)
@@ -40,11 +40,11 @@ The pulse covariance behind the published median metrics (`MR0`, `MRinf`, `MAmax
 Dataset S1: `Diagonal(w.^2)` with `w = c.B[1:N]`. That is the first `N` entries of the biomass
 vector over all initial species (extinct ones at zero, in niche order; see FoodWebDynamics'
 `niche_model`), set against the `N` surviving species. The weights agree with
-[`pulse_covariance`](@ref)`(biomass(c))` only when no species went extinct during assembly.
+`pulse_covariance(biomass(c))` (ResilienceCore) only when no species went extinct during assembly.
 The misalignment reproduces the published data: in communities that kept every species the
 published median metrics match the aligned weights, with `MR0 ≈ −0.76` and no amplification.
 After extinctions, `MR0` drifts towards 0 and about a fifth of communities amplify, as in the
-published data; aligned weights give neither. Requires `using FoodWebDynamics`.
+published data; aligned weights give neither.
 """
 function published_pulse_covariance end
 
@@ -55,12 +55,11 @@ The six raw columns of [`community_record`](@ref) that depend on the convention,
 `NamedTuple` `(Amax, tmax, MRinf, MR0, MAmax, Mtmax)`.
 
 - `:published` reproduces Dataset S1. `Amax` and `tmax` come from the envelope in the ∞-norm
-  ([`max_amplification`](@ref) with `p = Inf`), and the median metrics use
+  ([`published_max_amplification`](@ref)), and the median metrics use
   [`published_pulse_covariance`](@ref).
-- `:si` follows the definitions of the SI: the spectral norm, and pulses proportional to the
-  surviving species' own biomasses ([`pulse_covariance`](@ref)).
-
-Requires `using FoodWebDynamics`.
+- `:si` follows the definitions of the SI: the spectral norm (`max_amplification` of
+  ResilienceCore), and pulses proportional to the surviving species' own biomasses
+  (`pulse_covariance`).
 """
 function amplification_metrics end
 
@@ -83,7 +82,7 @@ rank-based analyses.
 
 The simulation experiments are those of ResilienceCore (`global_mortality_tolerance`,
 `press_response`, `removal_responses`, `extinction_tolerance`, …), run through FoodWebDynamics'
-implementation of the community interface. Requires `using FoodWebDynamics`.
+implementation of the community interface.
 """
 function community_record end
 

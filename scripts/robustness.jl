@@ -7,7 +7,7 @@
 # Only the communities with seeds 1..NSEEDS (network Sim20191218 ...) are used from each
 # ensemble, so every variant is compared on the same draws. Correlations are computed within
 # richness bins (5–15, 16–30, 31–60, 61–99) and averaged, as in compare_structures.jl.
-using EcologicalResilience
+using DominguezGarcia2019
 using CSV, DataFrames, Statistics, Printf
 using Random: Xoshiro
 

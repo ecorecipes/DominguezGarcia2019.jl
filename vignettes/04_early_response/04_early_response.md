@@ -28,11 +28,11 @@ the median metrics were weighted. The evidence comes first from the
 published data alone and then from simulations computed both ways.
 
 ``` julia
-using EcologicalResilience
+using DominguezGarcia2019
 using FoodWebDynamics
 using CSV, DataFrames, Statistics, Random, Printf
 using Plots
-data = joinpath(pkgdir(EcologicalResilience), "data")
+data = joinpath(pkgdir(DominguezGarcia2019), "data")
 pub = CSV.read(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"), DataFrame)
 sim = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 sim = sim[5 .<= sim.N .<= 99, :]
@@ -67,7 +67,7 @@ function community_with_losses(rng, S, minlost)    # first viable draw that lost
     end
 end
 c = community_with_losses(Xoshiro(7), 30, 3)
-J = jacobian(c.B, c.model)
+op = community_jacobian(c)
 N = richness(c)
 weights = DataFrame(species = findall(c.model.alive), own_biomass = biomass(c),
                     published_weight = c.B[1:N])
@@ -102,8 +102,8 @@ filter(r -> r.own_biomass != r.published_weight, weights)   # survivors whose we
 
 ``` julia
 (species_lost = c.initial_richness - N,
- MR0_si = median_reactivity(J, pulse_covariance(biomass(c))),
- MR0_published = median_reactivity(J, published_pulse_covariance(c)))
+ MR0_si = median_reactivity(op, pulse_covariance(biomass(c))),
+ MR0_published = median_reactivity(op, published_pulse_covariance(c)))
 ```
 
     (species_lost = 3, MR0_si = -0.5279977995913107, MR0_published = -0.7077880130814678)

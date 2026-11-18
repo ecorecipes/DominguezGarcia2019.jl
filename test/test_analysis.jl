@@ -1,6 +1,6 @@
 # Regression against the authors' Python analysis (lab/code/python-reference) on Dataset S2.
 @testset "analysis against the Python reference" begin
-    df = read_metrics(joinpath(pkgdir(EcologicalResilience), "data", "dominguez-garcia2019", "Dataset_S2.csv"))
+    df = read_metrics(joinpath(pkgdir(DominguezGarcia2019), "data", "dominguez-garcia2019", "Dataset_S2.csv"))
     @test size(df) == (9380, 29)
     sc = size_correlations(df)
     @test sc.sizes == collect(5:99)

@@ -5,5 +5,5 @@ function owned_undocumented(M; allow = Symbol[])
 end
 
 @testset "docstrings on every exported name" begin
-    @test isempty(owned_undocumented(EcologicalResilience))
+    @test isempty(owned_undocumented(DominguezGarcia2019))
 end

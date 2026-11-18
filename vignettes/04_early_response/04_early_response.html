@@ -2409,11 +2409,11 @@ window.Quarto = {
 </ul>
 <p>This vignette shows that MAmax and Mtmax vary between communities, and so can form a group at all, only because of a bookkeeping error in how the median metrics were weighted. The evidence comes first from the published data alone and then from simulations computed both ways.</p>
 <div id="2" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">EcologicalResilience</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DominguezGarcia2019</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">FoodWebDynamics</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CSV</span>, <span class="bu">DataFrames</span>, <span class="bu">Statistics</span>, <span class="bu">Random</span>, <span class="bu">Printf</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> <span class="fu">joinpath</span>(<span class="fu">pkgdir</span>(EcologicalResilience), <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> <span class="fu">joinpath</span>(<span class="fu">pkgdir</span>(DominguezGarcia2019), <span class="st">&quot;data&quot;</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pub <span class="op">=</span> CSV.<span class="fu">read</span>(<span class="fu">joinpath</span>(data, <span class="st">&quot;dominguez-garcia2019&quot;</span>, <span class="st">&quot;Dataset_S2.csv&quot;</span>), DataFrame)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sim <span class="op">=</span> CSV.<span class="fu">read</span>(<span class="fu">joinpath</span>(data, <span class="st">&quot;simulated&quot;</span>, <span class="st">&quot;ensemble_v4.csv&quot;</span>), DataFrame)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sim <span class="op">=</span> sim[<span class="fl">5</span> <span class="op">.&lt;=</span> sim.N <span class="op">.&lt;=</span> <span class="fl">99</span>, <span class="op">:</span>]</span>
@@ -2436,7 +2436,7 @@ window.Quarto = {
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="fu">community_with_losses</span>(<span class="fu">Xoshiro</span>(<span class="fl">7</span>), <span class="fl">30</span>, <span class="fl">3</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> <span class="fu">jacobian</span>(c.B, c.model)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>op <span class="op">=</span> <span class="fu">community_jacobian</span>(c)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="fu">richness</span>(c)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>weights <span class="op">=</span> <span class="fu">DataFrame</span>(species <span class="op">=</span> <span class="fu">findall</span>(c.model.alive), own_biomass <span class="op">=</span> <span class="fu">biomass</span>(c),</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                    published_weight <span class="op">=</span> c.B[<span class="fl">1</span><span class="op">:</span>N])</span>
@@ -2543,8 +2543,8 @@ window.Quarto = {
 </div>
 <div id="6" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(species_lost <span class="op">=</span> c.initial_richness <span class="op">-</span> N,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> MR0_si <span class="op">=</span> <span class="fu">median_reactivity</span>(J, <span class="fu">pulse_covariance</span>(<span class="fu">biomass</span>(c))),</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a> MR0_published <span class="op">=</span> <span class="fu">median_reactivity</span>(J, <span class="fu">published_pulse_covariance</span>(c)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> MR0_si <span class="op">=</span> <span class="fu">median_reactivity</span>(op, <span class="fu">pulse_covariance</span>(<span class="fu">biomass</span>(c))),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a> MR0_published <span class="op">=</span> <span class="fu">median_reactivity</span>(op, <span class="fu">published_pulse_covariance</span>(c)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>(species_lost = 3, MR0_si = -0.5279977995913107, MR0_published = -0.7077880130814678)</code></pre>
 </div>
@@ -2661,9 +2661,8 @@ ours, published weights
     Is Rinf MRinf S &lt;s_ij&gt; TM &lt;TM&gt; minTM &lt;CE&gt; TE maxCE
     RM &lt;RM&gt; maxRM SM &lt;SM&gt; maxSM &lt;RE&gt; maxRE &lt;SE&gt; maxSE
 ours, SI weights
-    R0 Amax tmax
-    Is Rinf MRinf S &lt;s_ij&gt; TM &lt;TM&gt; minTM &lt;CE&gt; TE maxCE
-    MR0 RM &lt;RM&gt; maxRM SM &lt;SM&gt; maxSM &lt;RE&gt; maxRE &lt;SE&gt; maxSE
+    R0 Amax MR0 RM &lt;RM&gt; maxRM SM &lt;SM&gt; maxSM &lt;RE&gt; maxRE &lt;SE&gt; maxSE
+    Is tmax Rinf MRinf S &lt;s_ij&gt; TM &lt;TM&gt; minTM &lt;CE&gt; TE maxCE
     MAmax
     Mtmax</code></pre>
 </div>

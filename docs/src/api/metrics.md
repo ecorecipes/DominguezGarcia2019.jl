@@ -1,32 +1,31 @@
-# Stability metrics
+# Datasets and conventions
 
-## From the Jacobian
+The stability metrics themselves are ResilienceCore's, re-exported here: `resilience`,
+`reactivity`, `amplification_envelope`, `max_amplification`, `pulse_covariance`, the median
+metrics, `stochastic_invariability`, the press sensitivities, and the simulated experiments
+(`PerturbationOptions`, `global_mortality_tolerance`, `local_mortality_tolerances`,
+`press_response`, `removal_responses`, `extinction_tolerance`). Their documentation is in
+[ResilienceCore.jl](https://ecorecipes.github.io/ResilienceCore.jl/dev/). The experiments run
+on the assembled communities of
+[FoodWebDynamics.jl](https://ecorecipes.github.io/FoodWebDynamics.jl/dev/), which implement
+ResilienceCore's community interface.
+
+This page documents what is specific to the paper: the Jacobian of an assembled community,
+the conventions the published Dataset S1 actually used, and the dataset layout.
+
+## The community's Jacobian
 
 ```@docs
-reactivity
-resilience
-amplification_envelope
-max_amplification
-pulse_covariance
-median_reactivity
-median_displacement
-median_max_amplification
-median_resilience
-stochastic_invariability
-sensitivity_matrix
-press_sensitivity
-total_sensitivity
+community_jacobian
 ```
 
-## From simulated press perturbations
+## The published conventions
 
-The experiments `PerturbationOptions`, `global_mortality_tolerance`,
-`local_mortality_tolerances`, `press_response`, `removal_responses` and
-`extinction_tolerance` are defined in
-[ResilienceCore.jl](https://ecorecipes.github.io/ResilienceCore.jl/dev/) and re-exported here.
-They run on any community that implements ResilienceCore's interface (`state`,
-`present_species`, `with_mortality`, `without_species`, `jacobian`), such as the assembled
-communities of FoodWebDynamics.jl.
+```@docs
+published_max_amplification
+published_pulse_covariance
+amplification_metrics
+```
 
 ## Datasets
 
@@ -34,8 +33,6 @@ communities of FoodWebDynamics.jl.
 RAW_COLUMNS
 METRICS
 community_record
-amplification_metrics
-published_pulse_covariance
 prepare_metrics
 read_metrics
 ```

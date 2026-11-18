@@ -17,10 +17,10 @@ paper’s analysis: correlations by size class, modular groups, and how
 correlations change with community size.
 
 ``` julia
-using EcologicalResilience
+using DominguezGarcia2019
 using CSV, DataFrames, Statistics, Random, Printf
 using Plots
-data = joinpath(pkgdir(EcologicalResilience), "data")
+data = joinpath(pkgdir(DominguezGarcia2019), "data")
 sim_raw = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 pub_raw = CSV.read(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"), DataFrame)
 (simulated = nrow(sim_raw), published = nrow(pub_raw),
@@ -103,8 +103,8 @@ both datasets.
 
 ``` julia
 labels = filter(r -> min(r.simulated, r.published) >= 0.01, variation).metric
-sc_sim = size_correlations(sim; labels)
-sc_pub = size_correlations(pub; labels)
+sc_sim = size_correlations(sim; labels, rng = Xoshiro(2019))   # up to 100 communities per richness
+sc_pub = size_correlations(pub; labels, rng = Xoshiro(2019))
 (metrics = length(labels), sizes = length(sc_sim.sizes), median_per_size = median(sc_sim.n))
 ```
 
@@ -145,7 +145,7 @@ for (name, (lo, hi)) in SIZE_CLASSES
 end
 ```
 
-    small  Q simulated 0.134, published 0.147; Rand index of the partitions 0.97
+    small  Q simulated 0.135, published 0.147; Rand index of the partitions 0.97
        R0 Is Amax tmax Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        MR0 RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
        MAmax Mtmax
@@ -153,7 +153,7 @@ end
        R0 Amax tmax MR0 MAmax Mtmax
        Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
-    medium Q simulated 0.175, published 0.177; Rand index of the partitions 0.88
+    medium Q simulated 0.178, published 0.177; Rand index of the partitions 0.88
        R0 Amax tmax MR0 MAmax Mtmax
        Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
@@ -174,13 +174,13 @@ sort(outerjoin(t_pub, t_sim; on = :type), :type)
 | Row | type   | published | simulated |
 |----:|:-------|----------:|----------:|
 |     | String |    Int64? |    Int64? |
-|   1 | A      |         7 |         4 |
-|   2 | B      |         8 |        14 |
-|   3 | C      |         7 |         4 |
-|   4 | D      |         5 |         2 |
-|   5 | E      |        64 |        55 |
-|   6 | F      |       105 |       101 |
-|   7 | G      |       155 |       171 |
+|   1 | A      |         7 |         2 |
+|   2 | B      |         8 |        19 |
+|   3 | C      |         7 |         3 |
+|   4 | D      |         5 |         5 |
+|   5 | E      |        64 |        48 |
+|   6 | F      |       105 |       102 |
+|   7 | G      |       155 |       172 |
 
 ```@raw html
 </div>
