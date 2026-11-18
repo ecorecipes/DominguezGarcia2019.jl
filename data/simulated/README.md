@@ -20,3 +20,34 @@ Columns:
 
 It was generated with the package defaults: no plant metabolism, metabolic exponent −0.25,
 h₀ = 0.4, the survival rule `N ≥ floor(0.9 iniN)`, and diet weights kept after extinctions.
+
+## Robustness variants
+
+`robustness/` holds six ensembles that each change one model setting, on the same community
+seeds 1–1,200 (`Sim20191218` to `Sim20192417`) as the first 1,200 rows of `ensemble_v4.csv`.
+The vignette *Robustness of the reproduction to model settings* analyses them. Their columns
+are those of `ensemble_v4.csv`.
+
+| File | Setting (`KEY=VALUE`) | Communities |
+|---|---|---|
+| `h0_0.2.csv` | `h0=0.2` | 1,200 |
+| `h0_0.7.csv` | `h0=0.7` | 95 |
+| `q_0.6.csv` | `q=0.6` | 1,200 |
+| `q_0.1.csv` | `q=0.1` | 6 |
+| `plant_metabolism.csv` | `plant_metabolism=true` | 1,194 |
+| `metabolic_exponent_+0.25.csv` | `metabolic_exponent=0.25` | 9 |
+
+Each was simulated with
+
+```bash
+julia -t 10 --gcthreads=1 --project scripts/simulate_dataset.jl OUT.csv 1200 5 110 20191217 KEY=VALUE
+```
+
+The `h0=0.7`, `q=0.1` and `metabolic_exponent=0.25` runs rarely reach a viable community and
+were stopped after a 90-minute budget, so they hold only the communities reached by then.
+`plant_metabolism=true` holds 1,194 of the 1,200 seeds. To print the summary table:
+
+```bash
+julia --project scripts/robustness.jl data/dominguez-garcia2019/Dataset_S2.csv 1200 \
+    baseline=data/simulated/ensemble_v4.csv h0_0.2=data/simulated/robustness/h0_0.2.csv ...
+```
