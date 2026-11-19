@@ -48,15 +48,13 @@ function community_record(rng::AbstractRNG, c::Community; options::PerturbationO
     model = c.model
     B = biomass(c)
     N = length(B)
-    S = length(state(c))
     op = community_jacobian(c)
     amp = amplification_metrics(c, op, convention, dt)
     loc = local_mortality_tolerances(c; options = options)
-    rel, l1, _ = press_response(c, fill(1 + options.press, S); options = options)
-    pressed(i) = (f = ones(S); f[i] = 1 + options.press; f)
-    locpress = [press_response(c, pressed(i); options = options) for i in present_species(c)]
-    lrel = first.(locpress)
-    ll1 = [x[2] for x in locpress]
+    rel, l1, _ = global_press_response(c; options = options)
+    locpress = local_press_responses(c; options = options)
+    lrel = [x.relative for x in locpress]
+    ll1 = [x.l1 for x in locpress]
     rem = removal_responses(c; options = options)
     surv = [r.survivors / (N - 1) for r in rem]
     rrel = [r.relative for r in rem]

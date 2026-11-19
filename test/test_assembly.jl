@@ -36,4 +36,12 @@
     @test published_pulse_covariance(full) == pulse_covariance(biomass(full))
     prepared = prepare_metrics(DataFrame([r]))
     @test names(prepared) == [METRICS; "N"]
+    # ResilienceCore's named profile gives the paper's 27 metrics under the SI conventions
+    prof = DominguezGarcia2019.ResilienceCore.stability_profile(Xoshiro(7), c; options = opts)
+    rsi = prepare_metrics(DataFrame([community_record(Xoshiro(7), c; options = opts, convention = :si)]))
+    k = N / (N - 1)
+    sgn = [-1, 1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, -k, 1, -k, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    @test length(prof) == length(METRICS) == length(sgn)
+    @test all(isapprox(rsi[1, m], s * v; rtol = 1e-10, atol = 1e-14, nans = true)
+              for (m, s, v) in zip(METRICS, sgn, values(prof)))
 end

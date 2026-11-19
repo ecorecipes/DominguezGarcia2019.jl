@@ -35,7 +35,8 @@ using ResilienceCore: ResilienceCore, ContinuousJacobian, resilience, reactivity
                       median_max_amplification, median_resilience, stochastic_invariability, sensitivity_matrix,
                       press_sensitivity, total_sensitivity, PerturbationOptions, global_mortality_tolerance,
                       local_mortality_tolerances, press_response, removal_responses, extinction_tolerance,
-                      present_species, state
+                      present_species, state, global_press_response,
+                      local_press_responses
 
 # metrics and experiments of ResilienceCore, re-exported for the vignettes and scripts
 export ContinuousJacobian, resilience, reactivity, amplification_envelope, max_amplification, pulse_covariance,
