@@ -24,6 +24,8 @@ community_jacobian
 ```@docs
 published_max_amplification
 published_pulse_covariance
+PUBLISHED_GLOBAL_PRESS
+published_press_factors
 amplification_metrics
 ```
 

@@ -34,6 +34,9 @@
     full = Community(FoodWebModel(FoodWeb(c.model.web.A[alive, alive]), c.model.params, c.model.exponents),
                      c.B[alive], N, N)
     @test published_pulse_covariance(full) == pulse_covariance(biomass(full))
+    # the published global press: an absolute mortality rise of 0.055 on every species
+    @test published_press_factors(c) ≈ 1 .+ 0.055 ./ c.model.base_mortality
+    @test r.RM_p == press_response(c, published_press_factors(c); options = opts)[1]
     prepared = prepare_metrics(DataFrame([r]))
     @test names(prepared) == [METRICS; "N"]
     # ResilienceCore's named profile gives the paper's 27 metrics under the SI conventions

@@ -73,12 +73,9 @@ All raw columns of Dataset S1 ([`RAW_COLUMNS`](@ref)) for one assembled communit
 [`amplification_metrics`](@ref)). `:published` reproduces Dataset S1, and `:si` follows the
 SI's definitions.
 
-The global press (`RM_p`, `L1DBRM_p`) raises every species' mortality by `options.press`, as
-the local presses do. Ranked within each richness, the published `RM_p` agrees with the sum of
-the local responses (Spearman ρ ≈ 0.92), as this definition does, but its values are about 30
-times larger. No stronger press tried (mortality ×2–×11, plant carrying capacity, all loss
-terms) reproduces both the size and the ranking. The scale does not affect the paper's
-rank-based analyses.
+The global press (`RM_p`, `L1DBRM_p`) depends on `convention`. `:si` raises every species'
+mortality by `options.press` (10%), as the local presses do. `:published` raises it by the
+absolute amount that reproduces Dataset S1 ([`published_press_factors`](@ref)).
 
 The simulation experiments are those of ResilienceCore (`global_mortality_tolerance`,
 `press_response`, `removal_responses`, `extinction_tolerance`, …), run through FoodWebDynamics'

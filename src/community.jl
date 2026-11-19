@@ -29,6 +29,28 @@ end
 
 published_pulse_covariance(c::Community) = Diagonal(c.B[1:FoodWebDynamics.richness(c)] .^ 2)
 
+"""
+    PUBLISHED_GLOBAL_PRESS
+
+The absolute increase in every species' per-capita mortality, 0.055, of the global press
+behind the published `RM_p` and `L1DBRM_p` (see [`published_press_factors`](@ref)).
+"""
+const PUBLISHED_GLOBAL_PRESS = 0.055
+
+"""
+    published_press_factors(c::Community)
+
+Mortality multipliers of the global press behind Dataset S1's `RM_p` and `L1DBRM_p`: every
+species' mortality rises by the same absolute amount, `dᵢ → dᵢ + 0.055`
+([`PUBLISHED_GLOBAL_PRESS`](@ref)), so the factors are `1 + 0.055/dᵢ`. The SI describes a 10%
+rise (`dᵢ → 1.1 dᵢ`), which the published local presses follow, but the published global press
+is about 30 times larger and varies between communities as an absolute rise does. Fitted to
+Dataset S1, this press reproduces the median `RM_p` and `L1DBRM_p` in every richness class,
+their ratio, the spread of `RM_p` relative to the summed local responses, and their rank
+correlation (ρ 0.91–0.95). Why the authors' code applied it is not known.
+"""
+published_press_factors(c::Community) = 1 .+ PUBLISHED_GLOBAL_PRESS ./ c.model.base_mortality
+
 function amplification_metrics(c::Community; convention::Symbol = :published, dt::Real = 0.1)
     return amplification_metrics(c, community_jacobian(c), convention, dt)
 end
@@ -51,7 +73,8 @@ function community_record(rng::AbstractRNG, c::Community; options::PerturbationO
     op = community_jacobian(c)
     amp = amplification_metrics(c, op, convention, dt)
     loc = local_mortality_tolerances(c; options = options)
-    rel, l1, _ = global_press_response(c; options = options)
+    rel, l1, _ = convention === :published ? press_response(c, published_press_factors(c); options = options) :
+                 global_press_response(c; options = options)
     locpress = local_press_responses(c; options = options)
     lrel = [x.relative for x in locpress]
     ll1 = [x.l1 for x in locpress]

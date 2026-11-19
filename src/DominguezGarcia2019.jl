@@ -46,6 +46,7 @@ export PerturbationOptions, global_mortality_tolerance, local_mortality_toleranc
        removal_responses, extinction_tolerance
 # the paper's datasets and conventions
 export RAW_COLUMNS, METRICS, community_jacobian, published_max_amplification, published_pulse_covariance,
+       PUBLISHED_GLOBAL_PRESS, published_press_factors,
        amplification_metrics, community_record, prepare_metrics, read_metrics
 # the paper's analysis
 export SizeCorrelations, size_correlations, class_average, SIZE_CLASSES, metric_network, modularity,
