@@ -2478,26 +2478,23 @@ Each is shown before it is used.</li>
 <span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    status <span class="op">=</span> !ok ? <span class="st">&quot;not converged&quot;</span> <span class="op">:</span> <span class="fu">richness</span>(model) <span class="op">&lt;</span> <span class="fl">3</span> ? <span class="st">&quot;collapsed&quot;</span> <span class="op">:</span> <span class="st">&quot;ok&quot;</span></span>
 <span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    rec <span class="op">=</span> EMPTY</span>
 <span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> metrics <span class="op">&amp;&amp;</span> status <span class="op">==</span> <span class="st">&quot;ok&quot;</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>            <span class="co"># the SI&#39;s median weights: the published ones assume niche-ordered species</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>            rec <span class="op">=</span> <span class="fu">community_record</span>(rng, <span class="fu">Community</span>(model, B, S, nd); convention <span class="op">=</span> <span class="op">:</span>si)</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>            rec.Rinf <span class="op">&gt;</span> <span class="fl">1e-9</span> <span class="op">||</span> (status, rec <span class="op">=</span> <span class="st">&quot;neutral&quot;</span>, EMPTY)</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">catch</span> err</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>            status <span class="op">=</span> <span class="st">&quot;error&quot;</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    info <span class="op">=</span> (network <span class="op">=</span> <span class="st">&quot;GW</span><span class="sc">$</span>(k)<span class="st">_</span><span class="sc">$</span>r<span class="st">&quot;</span>, web <span class="op">=</span> w.name, ecosystem <span class="op">=</span> w.ecosystem, replicate <span class="op">=</span> r, nodes <span class="op">=</span> S,</span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>            survivors <span class="op">=</span> <span class="fu">richness</span>(model), status <span class="op">=</span> status, merged <span class="op">=</span> merged)</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">merge</span>(info, rec)</span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">run_all</span>(jobs; kwargs<span class="op">...</span>)</span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> <span class="fu">Vector</span><span class="dt">{Any}</span>(<span class="cn">undef</span>, <span class="fu">length</span>(jobs))</span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Threads</span>.<span class="pp">@threads</span> <span class="op">:</span>dynamic <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(jobs)</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> <span class="fu">run_web</span>(jobs[i]<span class="op">...</span>; kwargs<span class="op">...</span>)</span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">DataFrame</span>(out)</span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the SI&#39;s median weights: the published ones assume niche-ordered species. No error is</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># caught here: none occurs in a correct run, so one means something is broken</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        rec <span class="op">=</span> <span class="fu">community_record</span>(rng, <span class="fu">Community</span>(model, B, S, nd); convention <span class="op">=</span> <span class="op">:</span>si)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>        rec.Rinf <span class="op">&gt;</span> <span class="fl">1e-9</span> <span class="op">||</span> (status, rec <span class="op">=</span> <span class="st">&quot;neutral&quot;</span>, EMPTY)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    info <span class="op">=</span> (network <span class="op">=</span> <span class="st">&quot;GW</span><span class="sc">$</span>(k)<span class="st">_</span><span class="sc">$</span>r<span class="st">&quot;</span>, web <span class="op">=</span> w.name, ecosystem <span class="op">=</span> w.ecosystem, replicate <span class="op">=</span> r, nodes <span class="op">=</span> S,</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>            survivors <span class="op">=</span> <span class="fu">richness</span>(model), status <span class="op">=</span> status, merged <span class="op">=</span> merged)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">merge</span>(info, rec)</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">run_all</span>(jobs; kwargs<span class="op">...</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> <span class="fu">Vector</span><span class="dt">{Any}</span>(<span class="cn">undef</span>, <span class="fu">length</span>(jobs))</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Threads</span>.<span class="pp">@threads</span> <span class="op">:</span>dynamic <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(jobs)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>        out[i] <span class="op">=</span> <span class="fu">run_web</span>(jobs[i]<span class="op">...</span>; kwargs<span class="op">...</span>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">DataFrame</span>(out)</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="14" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pilot <span class="op">=</span> [k for k <span class="kw">in</span> usable if <span class="fu">richness</span>(webs[k].web) <span class="op">≤</span> <span class="fl">40</span> <span class="op">&amp;&amp;</span> <span class="fu">relative_masses</span>(webs[k]) <span class="op">!==</span> <span class="cn">nothing</span>]</span>
@@ -2567,7 +2564,7 @@ Each is shown before it is used.</li>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>              <span class="op">:</span>merged <span class="op">=&gt;</span> (m <span class="op">-&gt;</span> <span class="fu">sum</span>(m <span class="op">.&gt;</span> <span class="fl">0</span>)) <span class="op">=&gt;</span> <span class="op">:</span>with_merges)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">push!</span>(eco, (<span class="st">&quot;all&quot;</span>, <span class="fu">nrow</span>(obs), <span class="fu">mean</span>(obs.status <span class="op">.==</span> <span class="st">&quot;ok&quot;</span>), <span class="fu">sum</span>(obs.merged <span class="op">.&gt;</span> <span class="fl">0</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>777 communities in 7.9 min on 4 threads</code></pre>
+<pre><code>777 communities in 9.9 min on 4 threads</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div><div style="float: left;"><span>6×4 DataFrame</span></div><div style="clear: both;"></div></div><div class="data-frame" style="overflow-x: scroll;">

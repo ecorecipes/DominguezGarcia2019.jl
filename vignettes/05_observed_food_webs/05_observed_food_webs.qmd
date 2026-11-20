@@ -191,13 +191,10 @@ function run_web(k, r; measured = false, metrics = true, seed = 20190000)
     status = !ok ? "not converged" : richness(model) < 3 ? "collapsed" : "ok"
     rec = EMPTY
     if metrics && status == "ok"
-        try
-            # the SI's median weights: the published ones assume niche-ordered species
-            rec = community_record(rng, Community(model, B, S, nd); convention = :si)
-            rec.Rinf > 1e-9 || (status, rec = "neutral", EMPTY)
-        catch err
-            status = "error"
-        end
+        # the SI's median weights: the published ones assume niche-ordered species. No error is
+        # caught here: none occurs in a correct run, so one means something is broken
+        rec = community_record(rng, Community(model, B, S, nd); convention = :si)
+        rec.Rinf > 1e-9 || (status, rec = "neutral", EMPTY)
     end
     info = (network = "GW$(k)_$r", web = w.name, ecosystem = w.ecosystem, replicate = r, nodes = S,
             survivors = richness(model), status = status, merged = merged)

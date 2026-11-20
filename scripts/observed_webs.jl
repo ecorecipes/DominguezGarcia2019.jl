@@ -21,7 +21,9 @@
 # web is not a random draw to be accepted or rejected. Communities that do not reach a stable
 # equilibrium, or keep fewer than 3 species, are recorded with `status` and no metrics. `merged`
 # counts neutral top consumers merged (see `merge_neutral!`). Rows are
-# appended as they finish, so an interrupted run resumes.
+# appended as they finish, so an interrupted run resumes. A community whose metrics throw is
+# logged and not written, so a rerun retries it; the run stops if its first 10 attempts all
+# throw, and exits with status 1 if any did.
 using DominguezGarcia2019
 using FoodWebDynamics
 using CSV, DataFrames
@@ -51,6 +53,7 @@ todo = [j for j in jobs if id(j...) ∉ done]
 println("$(length(usable)) usable webs, $(length(jobs)) jobs, $(length(todo)) to do, $(Threads.nthreads()) threads")
 lk = ReentrantLock()
 header = !isfile(out)
+nok, nerr = Threads.Atomic{Int}(0), Threads.Atomic{Int}(0)
 params = BioenergeticParameters()
 empty_metrics = NamedTuple{Tuple(RAW_COLUMNS)}(ntuple(_ -> NaN, length(RAW_COLUMNS)))
 
@@ -92,8 +95,18 @@ Threads.@threads :dynamic for (k, r) in todo
         try
             # :si: the published median weights assume niche-ordered species, which an observed web lacks
             rec = community_record(rng, Community(model, B, S, nd); convention = :si)
+            Threads.atomic_add!(nok, 1)
         catch err
-            status = "error: " * first(sprint(showerror, err), 80)
+            # no community of a correct run has failed here, so an error means something is broken
+            # (e.g. a stale environment): log it, do not write the row (a rerun retries it), and
+            # stop if the first attempts all fail
+            status = "error"
+            n = Threads.atomic_add!(nerr, 1) + 1
+            lock(lk) do
+                println("$(id(k, r)): ERROR ", first(sprint(showerror, err), 300))
+                flush(stdout)
+            end
+            n ≥ 10 && nok[] == 0 && error("the first $n metric computations all failed; see the errors above")
         end
         # a zero eigenvalue left by dynamically identical survivors: no meaningful metrics
         if status == "ok" && !(rec.Rinf > 1e-9)
@@ -103,6 +116,7 @@ Threads.@threads :dynamic for (k, r) in todo
     info = (network = id(k, r), web = w.name, ecosystem = w.ecosystem, replicate = r, masses = masses, node_type = nodes,
             taxa = richness(taxa_webs[k].web), nodes = S, nonliving = count(.!w.living), survivors_dynamic = nd,
             status = status, merged = merged)
+    status == "error" && continue
     row = DataFrame([merge(info, rec, (seconds = round(t; digits = 2),))])
     lock(lk) do
         CSV.write(out, row; append = !header)
@@ -110,4 +124,8 @@ Threads.@threads :dynamic for (k, r) in todo
         println("$(id(k, r)) $(w.ecosystem) S=$S survivors=$(richness(model)) $status $(round(t; digits = 1)) s")
         flush(stdout)
     end
+end
+if nerr[] > 0
+    println("$(nerr[]) communities failed and were not written; rerun to retry them")
+    exit(1)
 end

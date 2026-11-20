@@ -233,13 +233,10 @@ function run_web(k, r; measured = false, metrics = true, seed = 20190000)
     status = !ok ? "not converged" : richness(model) < 3 ? "collapsed" : "ok"
     rec = EMPTY
     if metrics && status == "ok"
-        try
-            # the SI's median weights: the published ones assume niche-ordered species
-            rec = community_record(rng, Community(model, B, S, nd); convention = :si)
-            rec.Rinf > 1e-9 || (status, rec = "neutral", EMPTY)
-        catch err
-            status = "error"
-        end
+        # the SI's median weights: the published ones assume niche-ordered species. No error is
+        # caught here: none occurs in a correct run, so one means something is broken
+        rec = community_record(rng, Community(model, B, S, nd); convention = :si)
+        rec.Rinf > 1e-9 || (status, rec = "neutral", EMPTY)
     end
     info = (network = "GW$(k)_$r", web = w.name, ecosystem = w.ecosystem, replicate = r, nodes = S,
             survivors = richness(model), status = status, merged = merged)
@@ -304,7 +301,7 @@ eco = combine(groupby(obs, :ecosystem), nrow => :communities, :status => (s -> m
 push!(eco, ("all", nrow(obs), mean(obs.status .== "ok"), sum(obs.merged .> 0)))
 ```
 
-    777 communities in 9.3 min on 4 threads
+    777 communities in 8.9 min on 4 threads
 
 <div><div style = "float: left;"><span>6×4 DataFrame</span></div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;">
 
