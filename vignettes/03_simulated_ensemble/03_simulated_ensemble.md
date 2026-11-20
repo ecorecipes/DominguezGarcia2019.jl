@@ -143,15 +143,15 @@ for (name, (lo, hi)) in SIZE_CLASSES
 end
 ```
 
-    small  Q simulated 0.135, published 0.147; Rand index of the partitions 0.97
+    small  Q simulated 0.131, published 0.147; Rand index of the partitions 0.97
        R0 Is Amax tmax Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        MR0 RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
        MAmax Mtmax
-    large  Q simulated 0.187, published 0.207; Rand index of the partitions 1.00
+    large  Q simulated 0.182, published 0.207; Rand index of the partitions 1.00
        R0 Amax tmax MR0 MAmax Mtmax
        Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
-    medium Q simulated 0.178, published 0.177; Rand index of the partitions 0.88
+    medium Q simulated 0.175, published 0.177; Rand index of the partitions 0.88
        R0 Amax tmax MR0 MAmax Mtmax
        Is Rinf MRinf S <s_ij> TM <TM> minTM <CE> TE maxCE
        RM <RM> maxRM SM <SM> maxSM <RE> maxRE <SE> maxSE
@@ -173,12 +173,12 @@ sort(outerjoin(t_pub, t_sim; on = :type), :type)
 |----:|:-------|----------:|----------:|
 |     | String |    Int64? |    Int64? |
 |   1 | A      |         7 |         2 |
-|   2 | B      |         8 |        19 |
-|   3 | C      |         7 |         3 |
-|   4 | D      |         5 |         5 |
-|   5 | E      |        64 |        48 |
-|   6 | F      |       105 |       102 |
-|   7 | G      |       155 |       172 |
+|   2 | B      |         8 |        20 |
+|   3 | C      |         7 |         4 |
+|   4 | D      |         5 |         9 |
+|   5 | E      |        64 |        49 |
+|   6 | F      |       105 |       101 |
+|   7 | G      |       155 |       166 |
 
 </div>
 

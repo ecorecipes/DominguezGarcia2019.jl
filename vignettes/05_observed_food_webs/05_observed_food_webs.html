@@ -2567,7 +2567,7 @@ Each is shown before it is used.</li>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>              <span class="op">:</span>merged <span class="op">=&gt;</span> (m <span class="op">-&gt;</span> <span class="fu">sum</span>(m <span class="op">.&gt;</span> <span class="fl">0</span>)) <span class="op">=&gt;</span> <span class="op">:</span>with_merges)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">push!</span>(eco, (<span class="st">&quot;all&quot;</span>, <span class="fu">nrow</span>(obs), <span class="fu">mean</span>(obs.status <span class="op">.==</span> <span class="st">&quot;ok&quot;</span>), <span class="fu">sum</span>(obs.merged <span class="op">.&gt;</span> <span class="fl">0</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>777 communities in 8.0 min on 4 threads</code></pre>
+<pre><code>777 communities in 7.9 min on 4 threads</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div><div style="float: left;"><span>6×4 DataFrame</span></div><div style="clear: both;"></div></div><div class="data-frame" style="overflow-x: scroll;">
@@ -2682,10 +2682,10 @@ Each is shown before it is used.</li>
 </section>
 <section id="metric-values-observed-against-niche-model-webs" class="level2">
 <h2 class="anchored" data-anchor-id="metric-values-observed-against-niche-model-webs">Metric values: observed against niche-model webs</h2>
-<p>The niche-model ensemble stores the SI versions of Amax, tmax and the median metrics in its <code>*_si</code> columns. These are the versions comparable with observed webs, which have no niche order. Both tables are prepared as in the paper (sign flips and transforms, so that larger means more stable).</p>
+<p>The niche-model ensemble stores the SI versions of Amax, tmax, the median metrics and the global press (every mortality raised by 10%) in its <code>*_si</code> columns. These are the versions comparable with observed webs, which have no niche order and are pressed as the SI says. Both tables are prepared as in the paper (sign flips and transforms, so that larger means more stable).</p>
 <div id="20" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sim <span class="op">=</span> CSV.<span class="fu">read</span>(<span class="fu">joinpath</span>(data, <span class="st">&quot;simulated&quot;</span>, <span class="st">&quot;ensemble_v4.csv&quot;</span>), DataFrame)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> (<span class="op">:</span>Amax, <span class="op">:</span>tmax, <span class="op">:</span>MRinf, <span class="op">:</span>MR0, <span class="op">:</span>MAmax, <span class="op">:</span>Mtmax)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> c <span class="kw">in</span> (<span class="op">:</span>Amax, <span class="op">:</span>tmax, <span class="op">:</span>MRinf, <span class="op">:</span>MR0, <span class="op">:</span>MAmax, <span class="op">:</span>Mtmax, <span class="op">:</span>RM_p, <span class="op">:</span>L1DBRM_p)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    sim[!, c] <span class="op">=</span> sim[!, <span class="fu">Symbol</span>(c, <span class="st">&quot;_si&quot;</span>)]</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>okobs <span class="op">=</span> obs[obs.status <span class="op">.==</span> <span class="st">&quot;ok&quot;</span>, <span class="op">:</span>]</span>

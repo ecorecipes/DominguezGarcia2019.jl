@@ -14,7 +14,8 @@
 # describes. Rows are appended as they finish, so an interrupted run resumes where it stopped.
 # The raw columns follow the published convention (`community_record`); `Amax_si`, `tmax_si`,
 # `MRinf_si`, `MR0_si`, `MAmax_si` and `Mtmax_si` give the same six metrics as the SI defines them
-# (`amplification_metrics(c; convention = :si)`).
+# (`amplification_metrics(c; convention = :si)`), and `RM_p_si` and `L1DBRM_p_si` the global press
+# as the SI defines it (every mortality raised by 10%, `global_press_response`).
 using DominguezGarcia2019
 using FoodWebDynamics
 using CSV, DataFrames
@@ -54,8 +55,10 @@ Threads.@threads :dynamic for k in todo
     rec = nothing
     t = @elapsed try
         si = amplification_metrics(c; convention = :si)
+        rel, l1, _ = DominguezGarcia2019.global_press_response(c)
         rec = merge(community_record(rng, c),
-                    NamedTuple{Symbol.(string.(keys(si), "_si"))}(values(si)))
+                    NamedTuple{Symbol.(string.(keys(si), "_si"))}(values(si)),
+                    (RM_p_si = rel, L1DBRM_p_si = l1))
     catch err                       # log and skip; a rerun retries it (and fails the same way)
         lock(lock_) do
             println("Sim$(seed + k): S=$S ERROR ", first(sprint(showerror, err), 200))

@@ -308,7 +308,7 @@ eco = combine(groupby(obs, :ecosystem), nrow => :communities, :status => (s -> m
 push!(eco, ("all", nrow(obs), mean(obs.status .== "ok"), sum(obs.merged .> 0)))
 ```
 
-    777 communities in 10.1 min on 4 threads
+    777 communities in 9.3 min on 4 threads
 
 <div><div style = "float: left;">6×4 DataFrame</div><div style = "clear: both;"></div></div><div class = "data-frame" style = "overflow-x: scroll;">
 
@@ -353,15 +353,16 @@ combine(groupby(obs, :status), nrow => :communities)
 
 ## Metric values: observed against niche-model webs
 
-The niche-model ensemble stores the SI versions of Amax, tmax and the
-median metrics in its `*_si` columns. These are the versions comparable
-with observed webs, which have no niche order. Both tables are prepared
-as in the paper (sign flips and transforms, so that larger means more
-stable).
+The niche-model ensemble stores the SI versions of Amax, tmax, the
+median metrics and the global press (every mortality raised by 10%) in
+its `*_si` columns. These are the versions comparable with observed
+webs, which have no niche order and are pressed as the SI says. Both
+tables are prepared as in the paper (sign flips and transforms, so that
+larger means more stable).
 
 ``` julia
 sim = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
-for c in (:Amax, :tmax, :MRinf, :MR0, :MAmax, :Mtmax)
+for c in (:Amax, :tmax, :MRinf, :MR0, :MAmax, :Mtmax, :RM_p, :L1DBRM_p)
     sim[!, c] = sim[!, Symbol(c, "_si")]
 end
 okobs = obs[obs.status .== "ok", :]

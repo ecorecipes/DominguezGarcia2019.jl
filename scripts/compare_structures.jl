@@ -35,6 +35,8 @@ function load(path; si = false)
     si && for c in SI_COLUMNS
         raw[!, c] = raw[!, Symbol(c, "_si")]
     end
+    # observed webs are pressed as the SI says (10%); so is niche_si where the ensemble has it
+    si && hasproperty(raw, :RM_p_si) && (raw.RM_p = raw.RM_p_si; raw.L1DBRM_p = raw.L1DBRM_p_si)
     unit = hasproperty(raw, :web) ? string.(raw.web) : string.(1:nrow(raw))
     m = hasproperty(raw, :L1DBRMt_s) ? prepare_metrics(raw) : read_metrics(path)
     m.unit = unit                         # the sampling unit for split halves

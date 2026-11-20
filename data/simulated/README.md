@@ -16,7 +16,20 @@ Columns:
 - `attempts`, the number of assembly draws until a viable community;
 - `seconds`, the time spent on its metrics;
 - `Amax_si`, `tmax_si`, `MRinf_si`, `MR0_si`, `MAmax_si` and `Mtmax_si`, the same six metrics
-  as the SI defines them (`amplification_metrics(c; convention = :si)`).
+  as the SI defines them (`amplification_metrics(c; convention = :si)`);
+- `RM_p_si` and `L1DBRM_p_si`, the global press as the SI defines it (every mortality raised by
+  10%, `global_press_response`). `RM_p` and `L1DBRM_p` hold the published press, an absolute
+  rise of 0.055 in every mortality (`published_press_factors`).
+
+The ensemble was first simulated with the 10% press in `RM_p` and `L1DBRM_p`. Those two columns
+were recomputed with the published press, and the 10% values moved to the `_si` columns, by
+
+```bash
+julia -t 10 --gcthreads=1 --project scripts/recompute_global_press.jl data/simulated/ensemble_v4.csv PRESS.csv
+```
+
+which regenerates each community from its seed and checks it against the stored `Rinf` (all
+10,000 matched). `simulate_dataset.jl` now writes both presses directly.
 
 It was generated with the package defaults: no plant metabolism, metabolic exponent −0.25,
 h₀ = 0.4, the survival rule `N ≥ floor(0.9 iniN)`, and diet weights kept after extinctions.
@@ -26,7 +39,9 @@ h₀ = 0.4, the survival rule `N ≥ floor(0.9 iniN)`, and diet weights kept aft
 `robustness/` holds six ensembles that each change one model setting, on the same community
 seeds 1–1,200 (`Sim20191218` to `Sim20192417`) as the first 1,200 rows of `ensemble_v4.csv`.
 The vignette *Robustness of the reproduction to model settings* analyses them. Their columns
-are those of `ensemble_v4.csv`.
+are those of `ensemble_v4.csv` without `RM_p_si` and `L1DBRM_p_si`: they were simulated before
+the published press was adopted, so their `RM_p` and `L1DBRM_p` hold the 10% press, and the
+vignette and `scripts/robustness.jl` compare them with the baseline's 10% columns.
 
 | File | Setting (`KEY=VALUE`) | Communities |
 |---|---|---|

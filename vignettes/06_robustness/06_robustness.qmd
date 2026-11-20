@@ -44,6 +44,8 @@ pub = read_metrics(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"))
 # the baseline: the first 1,200 seeds of the calibrated ensemble, the seeds every variant used
 base = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 base = base[in.(base.network, Ref(Set("Sim$(20191217 + k)" for k in 1:1200))), :]
+# the variants were simulated with the SI's 10% global press, so the baseline uses it too
+base.RM_p, base.L1DBRM_p = base.RM_p_si, base.L1DBRM_p_si
 files = ["h0_0.2" => "h0_0.2", "h0_0.7" => "h0_0.7", "q_0.6" => "q_0.6",
          "plant_metab" => "plant_metabolism", "q_0.1" => "q_0.1",
          "xexp_+0.25" => "metabolic_exponent_+0.25"]

@@ -260,14 +260,15 @@ combine(groupby(obs, :status), nrow => :communities)
 
 ## Metric values: observed against niche-model webs
 
-The niche-model ensemble stores the SI versions of Amax, tmax and the median metrics in its
-`*_si` columns. These are the versions comparable with observed webs, which have no niche order.
+The niche-model ensemble stores the SI versions of Amax, tmax, the median metrics and the
+global press (every mortality raised by 10%) in its `*_si` columns. These are the versions
+comparable with observed webs, which have no niche order and are pressed as the SI says.
 Both tables are prepared as in the paper (sign flips and transforms, so that larger means more
 stable).
 
 ```{julia}
 sim = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
-for c in (:Amax, :tmax, :MRinf, :MR0, :MAmax, :Mtmax)
+for c in (:Amax, :tmax, :MRinf, :MR0, :MAmax, :Mtmax, :RM_p, :L1DBRM_p)
     sim[!, c] = sim[!, Symbol(c, "_si")]
 end
 okobs = obs[obs.status .== "ok", :]
