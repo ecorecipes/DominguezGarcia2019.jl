@@ -55,8 +55,6 @@ pub = read_metrics(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"))
 # the baseline: the first 1,200 seeds of the calibrated ensemble, the seeds every variant used
 base = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 base = base[in.(base.network, Ref(Set("Sim$(20191217 + k)" for k in 1:1200))), :]
-# the variants were simulated with the SI's 10% global press, so the baseline uses it too
-base.RM_p, base.L1DBRM_p = base.RM_p_si, base.L1DBRM_p_si
 files = ["h0_0.2" => "h0_0.2", "h0_0.7" => "h0_0.7", "q_0.6" => "q_0.6",
          "plant_metab" => "plant_metabolism", "q_0.1" => "q_0.1",
          "xexp_+0.25" => "metabolic_exponent_+0.25"]
@@ -217,20 +215,20 @@ table = DataFrame(vec(rows))
 | Row | variant | weights | amplify | r_published | mean_abs_diff | rand_published | r_baseline | groups | early |
 |---:|:---|:---|---:|---:|---:|---:|---:|---:|---:|
 |  | String | String | Float64 | Float64 | Float64 | Float64 | Float64 | Int64 | Bool |
-| 1 | baseline | published | 20.9 | 0.98 | 0.035 | 0.91 | 1.0 | 3 | true |
-| 2 | baseline | SI | 0.1 | 0.9 | 0.071 | 0.97 | 1.0 | 3 | false |
+| 1 | baseline | published | 20.9 | 0.99 | 0.029 | 0.91 | 1.0 | 3 | true |
+| 2 | baseline | SI | 0.1 | 0.91 | 0.065 | 0.97 | 1.0 | 3 | false |
 | 3 | h0_0.2 | published | 21.2 | 0.97 | 0.053 | 1.0 | 0.97 | 3 | true |
-| 4 | h0_0.2 | SI | 0.0 | 0.92 | 0.075 | 0.89 | 0.96 | 4 | false |
-| 5 | h0_0.7 | published | 18.3 | 0.85 | 0.111 | 0.85 | 0.88 | 3 | true |
-| 6 | h0_0.7 | SI | 0.0 | 0.8 | 0.129 | 0.96 | 0.86 | 4 | false |
-| 7 | q_0.6 | published | 4.5 | 0.96 | 0.064 | 0.91 | 0.96 | 3 | true |
-| 8 | q_0.6 | SI | 0.0 | 0.93 | 0.083 | 0.96 | 0.96 | 4 | false |
-| 9 | plant_metab | published | 21.3 | 0.99 | 0.035 | 1.0 | 0.99 | 3 | true |
-| 10 | plant_metab | SI | 0.1 | 0.91 | 0.07 | 0.97 | 0.99 | 3 | false |
-| 11 | q_0.1 | published | 66.7 | 0.5 | 0.453 | 0.52 | 0.49 | 2 | true |
-| 12 | q_0.1 | SI | 0.0 | 0.43 | 0.473 | 0.6 | 0.45 | 5 | false |
-| 13 | xexp\_+0.25 | published | 22.2 | 0.58 | 0.388 | 0.5 | 0.55 | 2 | true |
-| 14 | xexp\_+0.25 | SI | 0.0 | 0.57 | 0.402 | 0.55 | 0.55 | 4 | false |
+| 4 | h0_0.2 | SI | 0.0 | 0.93 | 0.074 | 0.89 | 0.96 | 4 | false |
+| 5 | h0_0.7 | published | 18.3 | 0.84 | 0.114 | 0.85 | 0.86 | 3 | true |
+| 6 | h0_0.7 | SI | 0.0 | 0.8 | 0.133 | 0.89 | 0.85 | 4 | false |
+| 7 | q_0.6 | published | 4.5 | 0.97 | 0.062 | 0.91 | 0.96 | 3 | true |
+| 8 | q_0.6 | SI | 0.0 | 0.94 | 0.081 | 0.96 | 0.96 | 4 | false |
+| 9 | plant_metab | published | 21.3 | 0.99 | 0.031 | 1.0 | 0.99 | 3 | true |
+| 10 | plant_metab | SI | 0.1 | 0.91 | 0.067 | 0.97 | 0.99 | 3 | false |
+| 11 | q_0.1 | published | 66.7 | 0.47 | 0.464 | 0.5 | 0.47 | 2 | true |
+| 12 | q_0.1 | SI | 0.0 | 0.41 | 0.477 | 0.66 | 0.44 | 5 | false |
+| 13 | xexp\_+0.25 | published | 22.2 | 0.53 | 0.413 | 0.52 | 0.5 | 2 | true |
+| 14 | xexp\_+0.25 | SI | 0.0 | 0.51 | 0.433 | 0.56 | 0.49 | 4 | false |
 
 </div>
 
@@ -265,13 +263,13 @@ involving MR0, MAmax or Mtmax.
 - **Where a variant can be sampled, the structure holds.** h₀ = 0.2, q =
   0.6 and plant metabolism each give over 1,150 communities. Under the
   published weights they reproduce the published correlations about as
-  well as the baseline does (r(ρ) 0.96–0.99, against 0.98). Each gives
+  well as the baseline does (r(ρ) 0.97–0.99, against 0.99). Each gives
   three groups close to the published ones (Rand 0.91–1.00).
 - **They also agree with the baseline on the same seeds:** `r_baseline`
   is 0.96–0.99 under the published weights. Changing these settings
   moves the metrics, not their correlations.
 - **h₀ = 0.7 (93 communities) still finds three groups**, with a weaker
-  fit to the published correlations (r(ρ) 0.85, and 0.88 against the
+  fit to the published correlations (r(ρ) 0.84, and 0.86 against the
   baseline), as expected from a twelfth of the sample.
 
 ## Where the early-response metrics go
@@ -309,9 +307,9 @@ DataFrame(variant = table.variant, weights = table.weights,
 | 8 | q_0.6 | SI |  | press sensitivities |
 | 9 | plant_metab | published | MR0 Mtmax | MAmax |
 | 10 | plant_metab | SI | Mtmax | press sensitivities |
-| 11 | q_0.1 | published | R0 Is tmax MR0 Mtmax \<s_ij\> TM \<CE\> maxCE \<SM\> maxSM maxSE | MAmax |
-| 12 | q_0.1 | SI |  | \<s_ij\> \<SM\> \<SE\> maxSE |
-| 13 | xexp\_+0.25 | published | R0 Is Amax tmax MR0 Mtmax S \<s_ij\> \<CE\> RM maxRM SM maxSE | MAmax |
+| 11 | q_0.1 | published | R0 Is tmax MR0 Mtmax \<s_ij\> TM \<CE\> maxCE SM \<SM\> maxSM maxSE | MAmax |
+| 12 | q_0.1 | SI |  | R0 \<s_ij\> maxCE SM \<SM\> \<SE\> maxSE |
+| 13 | xexp\_+0.25 | published | R0 Is Amax tmax MR0 Mtmax S \<s_ij\> \<CE\> RM maxRM maxSE | MAmax |
 | 14 | xexp\_+0.25 | SI |  | press sensitivities |
 
 </div>
@@ -361,7 +359,7 @@ published and the SI’s pulse weights.
   still make MAmax and Mtmax vary between communities.
 - **The two barely sampled variants say little.** With q = 0.1 and an
   exponent of +0.25, 6 and 9 communities give partitions with two groups
-  and correlations far from the published ones (r(ρ) 0.50 and 0.58).
+  and correlations far from the published ones (r(ρ) 0.47 and 0.53).
   That MR0, MAmax and Mtmax share a group there is unsurprising when 27
   metrics are split in two, and is not evidence either way.
 

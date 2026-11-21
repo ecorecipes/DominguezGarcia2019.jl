@@ -44,8 +44,6 @@ pub = read_metrics(joinpath(data, "dominguez-garcia2019", "Dataset_S2.csv"))
 # the baseline: the first 1,200 seeds of the calibrated ensemble, the seeds every variant used
 base = CSV.read(joinpath(data, "simulated", "ensemble_v4.csv"), DataFrame)
 base = base[in.(base.network, Ref(Set("Sim$(20191217 + k)" for k in 1:1200))), :]
-# the variants were simulated with the SI's 10% global press, so the baseline uses it too
-base.RM_p, base.L1DBRM_p = base.RM_p_si, base.L1DBRM_p_si
 files = ["h0_0.2" => "h0_0.2", "h0_0.7" => "h0_0.7", "q_0.6" => "q_0.6",
          "plant_metab" => "plant_metabolism", "q_0.1" => "q_0.1",
          "xexp_+0.25" => "metabolic_exponent_+0.25"]
@@ -175,12 +173,12 @@ plot(panels...; layout = (2, 2), size = (700, 640), xlabel = "published ρ", yla
 
 - **Where a variant can be sampled, the structure holds.** h₀ = 0.2, q = 0.6 and plant
   metabolism each give over 1,150 communities. Under the published weights they reproduce the
-  published correlations about as well as the baseline does (r(ρ) 0.96–0.99, against 0.98).
+  published correlations about as well as the baseline does (r(ρ) 0.97–0.99, against 0.99).
   Each gives three groups close to the published ones (Rand 0.91–1.00).
 - **They also agree with the baseline on the same seeds:** `r_baseline` is 0.96–0.99 under
   the published weights. Changing these settings moves the metrics, not their correlations.
 - **h₀ = 0.7 (93 communities) still finds three groups**, with a weaker fit to the published
-  correlations (r(ρ) 0.85, and 0.88 against the baseline), as expected from a twelfth of the
+  correlations (r(ρ) 0.84, and 0.86 against the baseline), as expected from a twelfth of the
   sample.
 
 ## Where the early-response metrics go
@@ -235,7 +233,7 @@ bar!(x .+ 0.2, siw.amplify; bar_width = 0.4, label = "SI weights", color = :stee
   The misaligned weights still make MAmax and Mtmax vary between communities.
 - **The two barely sampled variants say little.** With q = 0.1 and an exponent of +0.25,
   6 and 9 communities give partitions with two groups and correlations far from the published
-  ones (r(ρ) 0.50 and 0.58). That MR0, MAmax and Mtmax share a group there is unsurprising
+  ones (r(ρ) 0.47 and 0.53). That MR0, MAmax and Mtmax share a group there is unsurprising
   when 27 metrics are split in two, and is not evidence either way.
 
 ## Caveats

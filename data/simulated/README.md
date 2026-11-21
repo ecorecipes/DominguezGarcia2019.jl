@@ -39,9 +39,16 @@ h₀ = 0.4, the survival rule `N ≥ floor(0.9 iniN)`, and diet weights kept aft
 `robustness/` holds six ensembles that each change one model setting, on the same community
 seeds 1–1,200 (`Sim20191218` to `Sim20192417`) as the first 1,200 rows of `ensemble_v4.csv`.
 The vignette *Robustness of the reproduction to model settings* analyses them. Their columns
-are those of `ensemble_v4.csv` without `RM_p_si` and `L1DBRM_p_si`: they were simulated before
-the published press was adopted, so their `RM_p` and `L1DBRM_p` hold the 10% press, and the
-vignette and `scripts/robustness.jl` compare them with the baseline's 10% columns.
+are those of `ensemble_v4.csv`. They were simulated before the published press was adopted;
+their `RM_p` and `L1DBRM_p` were then recomputed with it, and the 10% values moved to
+`RM_p_si` and `L1DBRM_p_si`. The recompute takes the variant's setting as the simulation did:
+
+```bash
+julia -t 10 --gcthreads=1 --project scripts/recompute_global_press.jl \
+    data/simulated/robustness/h0_0.2.csv OUT.csv 5 110 h0=0.2
+```
+
+Every community re-assembled exactly, with the Rinf stored in its row.
 
 | File | Setting (`KEY=VALUE`) | Communities |
 |---|---|---|

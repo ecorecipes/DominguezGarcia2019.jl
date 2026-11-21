@@ -2,10 +2,11 @@
 # simulate_dataset.jl with the published press (`published_press_factors`), without rerunning the
 # other experiments.
 #
-#   julia -t auto --gcthreads=1 --project scripts/recompute_global_press.jl ENSEMBLE.csv OUT.csv [MINS MAXS]
+#   julia -t auto --gcthreads=1 --project scripts/recompute_global_press.jl ENSEMBLE.csv OUT.csv [MINS MAXS [KEY=VALUE ...]]
 #
-# Community `Sim<s>` is re-assembled from Xoshiro(s) as simulate_dataset.jl did (default model
-# settings; MINS:MAXS as in that run, 5:110 by default). Its resilience is checked against the
+# Community `Sim<s>` is re-assembled from Xoshiro(s) as simulate_dataset.jl did: MINS:MAXS as in
+# that run (5:110 by default) and the same KEY=VALUE overrides of BioenergeticParameters (none for
+# the main ensemble; one per robustness variant, e.g. `h0=0.2`). Its resilience is checked against the
 # stored Rinf, so a community that does not reproduce is flagged rather than silently replaced.
 # OUT.csv gets `network`, `RM_p`, `L1DBRM_p`, `Rinf_match`; rows are appended as they finish, so an
 # interrupted run resumes.
@@ -21,6 +22,13 @@ ens = CSV.read(ARGS[1], DataFrame; select = [:network, :Rinf])
 out = ARGS[2]
 mins = length(ARGS) ≥ 3 ? parse(Int, ARGS[3]) : 5
 maxs = length(ARGS) ≥ 4 ? parse(Int, ARGS[4]) : 110
+overrides = map(ARGS[5:end]) do a
+    k, v = Symbol.(split(a, "="; limit = 2))
+    T = fieldtype(BioenergeticParameters, k)
+    k => parse(T, String(v))
+end
+params = BioenergeticParameters(; overrides...)
+isempty(overrides) || println("model settings: ", join(("$k = $v" for (k, v) in overrides), ", "))
 
 done = isfile(out) ? Set(CSV.read(out, DataFrame; select = [:network]).network) : Set{String}()
 todo = [r for r in eachrow(ens) if r.network ∉ done]
@@ -33,7 +41,7 @@ Threads.@threads :dynamic for r in todo
     S = rand(rng, mins:maxs)
     c = nothing
     while c === nothing
-        c, _ = assemble_community(rng, S)
+        c, _ = assemble_community(rng, S; params = params)
     end
     row = try
         rel, l1, _ = press_response(c, published_press_factors(c))

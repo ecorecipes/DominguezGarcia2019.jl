@@ -50,9 +50,6 @@ for arg in ARGS[3:end]
     name, path = split(arg, "="; limit = 2)
     raw = CSV.read(path, DataFrame)
     raw = raw[in.(raw.network, Ref(Set("Sim$(SEED0 + k)" for k in 1:nseeds))) .& (5 .<= raw.N .<= 99), :]
-    # the variant ensembles predate the published global press and hold the SI's 10% press in
-    # RM_p and L1DBRM_p; an ensemble that has both uses its 10% columns, so all share one press
-    hasproperty(raw, :RM_p_si) && (raw.RM_p = raw.RM_p_si; raw.L1DBRM_p = raw.L1DBRM_p_si)
     for weights in ("published", "SI")
         d = copy(raw)
         weights == "SI" && foreach(c -> (d[!, c] = d[!, Symbol(c, "_si")]), SIX)
